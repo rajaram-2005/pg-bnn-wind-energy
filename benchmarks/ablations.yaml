@@ -1,0 +1,9 @@
+experiments:
+  A: {name: pure_neural, physics: false, uncertainty: false, sparse_experts: false, digital_twin: false, telemetry: false, verification: false}
+  B: {name: neural_physics, physics: true, uncertainty: false, sparse_experts: false, digital_twin: false, telemetry: false, verification: false}
+  C: {name: neural_uncertainty, physics: false, uncertainty: true, sparse_experts: false, digital_twin: false, telemetry: false, verification: false}
+  D: {name: neural_sparse_experts, physics: false, uncertainty: false, sparse_experts: true, digital_twin: false, telemetry: false, verification: false}
+  E: {name: neural_digital_twin, physics: false, uncertainty: false, sparse_experts: false, digital_twin: true, telemetry: false, verification: false}
+  F: {name: full, physics: true, uncertainty: true, sparse_experts: true, digital_twin: true, telemetry: true, verification: true}
+  G: {name: full_without_telemetry, physics: true, uncertainty: true, sparse_experts: true, digital_twin: true, telemetry: false, verification: true}
+  H: {name: full_without_verification, physics: true, uncertainty: true, sparse_experts: true, digital_twin: true, telemetry: true, verification: false}
