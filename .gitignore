@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.coverage
+*.onnx
+*.pt
+*.pth
+data/raw/*
+data/processed/*
+data/features/*
+data/validation/*
+data/benchmarks/*
+!data/**/.gitkeep
+benchmark-results/*.json

@@ -1,0 +1,13 @@
+seed: 7
+model:
+  mode: windfusion-lite
+  input_features: 12
+  sequence_length: 24
+  outputs: 3
+training:
+  epochs: 100
+  learning_rate: 0.001
+  batch_size: 64
+physics_weights: {aero: 0.20, drive: 0.25, thermal: 0.25, grid: 0.15, consistency: 0.15}
+telemetry: {bypass_threshold: 0.65, detail_threshold: 0.35}
+safety: {advisory_only: true}
