@@ -1,13 +1,120 @@
+# WindFusion v0.2 - default experiment configuration.
+# Research defaults only: replace turbine constants with site/OEM values before
+# any deployment. Safety is an invariant and cannot be relaxed from here.
+
+version: "0.2.0"
 seed: 7
+
 model:
-  mode: windfusion-lite
-  input_features: 12
-  sequence_length: 24
-  outputs: 3
+  mode: windfusion-lite          # see `windfusion models` for the full family
+  input_features: 12             # SCADA channels (windfusion/data/schema.py)
+  physics_features: 5            # tsr, cp, power residual, thermal margin, completeness
+  sequence_length: 24            # 4 hours at 10-minute SCADA
+  outputs: 3                     # failure_probability_30d, health_index, rul_days/365
+  neighbors: 0
+
+data:
+  source: synthetic              # synthetic | (adapters for licensed datasets are user-supplied)
+  root: data
+  fleet_version: synthetic-v1
+  n_turbines: 36
+  seq_len: 1440                  # 10 days per turbine at 10-minute resolution
+  sample_interval_s: 600
+  window: 24
+  stride: 6
+  missing_rate: 0.01
+  horizon_days: 30.0
+  seed: 7
+  split: {train: 0.6, val: 0.2, test: 0.2}
+
 training:
-  epochs: 100
-  learning_rate: 0.001
+  epochs: 30
   batch_size: 64
-physics_weights: {aero: 0.20, drive: 0.25, thermal: 0.25, grid: 0.15, consistency: 0.15}
-telemetry: {bypass_threshold: 0.65, detail_threshold: 0.35}
-safety: {advisory_only: true}
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  grad_clip: 5.0
+  warmup_fraction: 0.05
+  patience: 8
+  min_delta: 0.0001
+  uncertainty_weight: 0.01
+  router_balance_weight: 0.01
+  num_workers: 0
+  target_weights:
+    failure_probability: 1.0
+    health_index: 1.0
+    rul_days: 1.0
+
+physics:
+  limit_penalty: 0.05
+  monotone_rul_weight: 0.05
+  weights:
+    aero: 0.20
+    drive: 0.25
+    thermal: 0.25
+    grid: 0.15
+    consistency: 0.15
+
+turbine:
+  rated_power_kw: 2000.0
+  rotor_radius_m: 45.0
+  gear_ratio: 97.0
+  omega_rated: 1.9
+  gearbox_efficiency: 0.95
+  generator_efficiency: 0.96
+  air_density: 1.225
+  nominal_voltage_v: 690.0
+  nominal_frequency_hz: 50.0
+  power_factor: 0.95
+  thermal_resistance_k_w: 0.006
+  thermal_capacitance_j_k: 50000.0
+  winding_resistance_ohm: 0.002
+  wake_decay: 0.075
+
+telemetry:
+  bypass_threshold: 0.65
+  detail_threshold: 0.35
+  deadband: 0.02
+  quantum: 0.01
+  cooldown_steps: 6
+  weights:
+    anomaly: 0.35
+    epistemic: 0.25
+    rate: 0.20
+    physics: 0.20
+
+evaluation:
+  mc_samples: 16
+  warning_horizon_days: 30.0
+  epistemic_abstain: 0.45
+  physics_abstain: 0.35
+  min_data_completeness: 0.6
+  conformal_coverage: 0.9
+  conformal: true
+
+distillation:
+  teacher: windfusion-research
+  student: windfusion-edge
+  temperature: 1.0
+  router_agreement_weight: 0.05
+  weights:
+    prediction: 0.50
+    uncertainty: 0.20
+    feature: 0.15
+    physics: 0.15
+
+fleet:
+  rounds: 3
+  local_epochs: 1
+  clients_per_round: 6
+  physics_aware_aggregation: true
+  reptile_inner_lr: 0.005
+  reptile_meta_lr: 0.4
+  reptile_inner_steps: 5
+  reptile_meta_iterations: 25
+  fewshot_steps: 25
+  fewshot_lr: 0.001
+  adaptation_windows: 32
+
+safety:
+  advisory_only: true
+  allow_actuation: false

@@ -3,9 +3,9 @@ requires = ["hatchling>=1.18"]
 build-backend = "hatchling.build"
 
 [project]
-name = "windfusion-lite"
-version = "0.1.0"
-description = "Lightweight physics-confidence fusion for wind turbine predictive maintenance"
+name = "windfusion"
+version = "0.2.0"
+description = "WindFusion v0.2: physics-confidence fusion for wind-turbine predictive maintenance (advisory only)"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}

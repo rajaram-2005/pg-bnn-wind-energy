@@ -13,3 +13,6 @@ data/validation/*
 data/benchmarks/*
 !data/**/.gitkeep
 benchmark-results/*.json
+artifacts/
+.ruff_cache/
+*.egg-info/
