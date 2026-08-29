@@ -113,6 +113,23 @@ template to fill once a licensed dataset is available — no real-data result is
 See [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md) for the protocol and
 [`benchmarks/RESULTS.md`](benchmarks/RESULTS.md) for the tables.
 
+### What the latest synthetic run actually shows
+
+Seeded fleet (`bd08a45a71d0ecea`), 36 turbines × 1440 samples, 15 epochs, all numbers SYNTHETIC:
+
+- **Distillation works**: the 9.7k-parameter student goes from 0.1033 → **0.0889** health MAE and
+  111.9 → **94.8** days RUL MAE, slightly better than its own 467k teacher (99.1 days).
+- **Fleet adaptation is mixed**: few-shot adaptation on 32 windows improves a held-out site
+  (111.9 → **104.2** days RUL MAE), but federated averaging gave **no** benefit in this
+  configuration (111.9 → 112.2). The negative result is reported too.
+- **The baselines are not pushovers.** On this fleet the GRU baseline beats every WindFusion model
+  on RUL MAE (83.1 days vs 96.6 for the best preset) and on early-warning F1 (0.699 vs 0.553).
+  WindFusion's margin is elsewhere: interval coverage (0.94–0.98 vs 0.85) and NLL, i.e. it knows
+  better *when it does not know*. A headline that claims WindFusion wins outright would be false.
+- **Verification never abstains on this split** (0.000): the test windows are in-distribution and
+  ~99% complete, so nothing trips the thresholds. The abstention path is covered by unit tests
+  instead, and `docs/SAFETY.md` states plainly that the verifier is not the deployment gate.
+
 ## Lineage and provenance
 
 WindFusion v0.2 is a clean-room synthesis. No upstream source tree was copied; each reused idea is

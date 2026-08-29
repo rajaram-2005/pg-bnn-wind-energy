@@ -49,6 +49,23 @@ local lineage; a formal literature review is still outstanding and no claim of n
 Each hypothesis is tested only on the synthetic fleet; the measured outcomes are in
 `benchmarks/results/synthetic-v0.2.0.md`. They are **not** evidence about real turbines.
 
+### What the first synthetic run supports, refutes and leaves open
+
+Seeded fleet `bd08a45a71d0ecea`. "Supports" means *consistent with the hypothesis on this
+simulation* — nothing more. The ablations needed to attribute any of it to a specific mechanism
+(A–X in `benchmarks/ablations.yaml`) are still unrun.
+
+| Hypothesis | Outcome on the synthetic fleet |
+|---|---|
+| H1 | **Inconclusive / partly refuted.** The presets beat `ridge` and `mlp` on health MAE and beat every baseline on interval coverage (0.94–0.98 vs 0.83–0.85) and NLL, but the `gru` baseline wins on RUL MAE (83.1 vs 96.6 days) and early-warning F1 (0.699 vs 0.553). The calibration claim holds; the accuracy claim does not, at equal-ish parameter counts, on this data. |
+| H2 | **Supported.** Distillation moves the 9.7k student from 0.1033 → 0.0889 health MAE and 111.9 → 94.8 days RUL MAE, past its own 467k teacher (99.1 days). Not yet decomposed: the run compares "distilled" against "from scratch", not against response-only distillation, so the router-agreement term specifically is untested. |
+| H3 | **Partly refuted.** Few-shot adaptation helps (111.9 → 104.2 days), but federated averaging gave no benefit at all (111.9 → 112.2). The Reptile meta-training arm is not separated from the few-shot arm in this run. |
+| H4 | **Not tested.** The codec was verified (0.372 bandwidth reduction at 0.0022 mean reconstruction error) but no fixed-deadband comparison arm was run, so the "better than fixed deadband" half of H4 has no measurement behind it. |
+
+Two further results are reported because they constrain the claims, not because they flatter them:
+verification abstention was 0.000 on every model (see `docs/SAFETY.md`), and the `mean` baseline's
+0.283 health MAE / 282-day RUL MAE is the floor any model must clear before it is interesting.
+
 ## Ablations
 
 `benchmarks/ablations.yaml` defines reproducible toggles (pure neural → +physics → +uncertainty →
