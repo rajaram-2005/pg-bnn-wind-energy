@@ -148,7 +148,9 @@ class TurbineWindowDataset(Dataset):
             "missing_mask": torch.from_numpy(missing.astype(np.float32)),
             "physics": physics.to(torch.float32),
             "target": torch.from_numpy(run.targets[end - 1].astype(np.float32)),
-            "raw": torch.from_numpy(np.nan_to_num(raw_last, nan=0.0).astype(np.float32)),
+            # `raw` keeps NaNs: physics residuals mask on them instead of
+            # treating a dropout as a physical measurement of zero.
+            "raw": torch.from_numpy(raw_last.astype(np.float32)),
             "damage_proxy": torch.tensor([damage_proxy(np.nan_to_num(raw_last, nan=0.0))], dtype=torch.float32),
             "turbine_id": torch.tensor(run.turbine_id, dtype=torch.long),
             "site_id": torch.tensor(run.site_id, dtype=torch.long),

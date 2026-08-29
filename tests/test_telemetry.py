@@ -82,3 +82,37 @@ def test_evaluate_policy_balances_savings_and_fidelity():
     assert report["windows"] == 20
     assert report["bandwidth_reduction"] > 0.5
     assert report["modes"]["raw"] >= 2
+
+
+def test_codec_preserves_the_operating_point():
+    """The DC baseline must survive delta coding, not be integrated from zero."""
+    policy = AdaptiveTelemetryPolicy()
+    values = np.linspace(20, 25, 200).astype(np.float32)
+    decision = policy.decide(0.0, 0.0, 0.0, 0.0)
+    encoded = policy.encode(values, decision)
+    decoded = policy.decode(encoded)
+    assert decoded.shape[0] == len(values[:: decision.keep_every])
+    # first reconstructed sample is the true first sample
+    assert abs(float(decoded[0]) - float(values[0])) < 0.02
+    error = reconstruction_error(values, decoded, keep_every=decision.keep_every)
+    assert error["mae"] < 0.05, error
+    assert error["max_abs"] < 0.5, error
+
+
+def test_codec_handles_multichannel_windows():
+    policy = AdaptiveTelemetryPolicy()
+    window = np.random.default_rng(3).normal(0, 1, (240, 12)).astype(np.float32) * 10 + 50
+    decision = policy.decide(0.0, 0.0, 0.0, 0.0)
+    encoded = policy.encode(window, decision)
+    decoded = policy.decode(encoded)
+    assert decoded.shape[1] == 12
+    error = reconstruction_error(window, decoded, keep_every=decision.keep_every)
+    assert error["mae"] < 0.05, error
+
+
+def test_reconstruction_error_compares_on_the_sampling_grid():
+    original = np.arange(100, dtype=np.float32)
+    decoded = np.arange(0, 100, 10, dtype=np.float32)
+    # misaligned comparison would report a large error
+    assert reconstruction_error(original, decoded, keep_every=10)["mae"] == 0.0
+    assert reconstruction_error(original, decoded, keep_every=1)["mae"] > 0.0

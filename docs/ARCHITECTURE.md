@@ -104,6 +104,15 @@ L = heteroscedastic NLL
 Residuals are computed on **raw SI-unit** channels, never on normalised features, because the
 physical relations are only valid in physical units.
 
+**Missing-data handling.** A residual computed from a dropped-out channel is missing data, not
+evidence of physical inconsistency: `compute_residuals` carries a per-sample validity mask, zeroes
+the residual where a required channel is NaN, and clamps the rest to ±10 so a single corrupt sample
+cannot dominate the objective. The dataset keeps NaNs in `raw` (only the normalised `data` tensor is
+imputed) so this masking is possible at all; `limit_penalties` applies the same rule and normalises
+each excess by a per-channel scale, so a sensor pinned at its clipping value contributes an O(1)
+penalty rather than a 10³ one. Completeness is reported to the verifier separately through
+`data_completeness`.
+
 ### 8. Deployment path
 
 `torch → ExportWrapper (dense experts) → ONNX (opset 17) → ONNX Runtime parity check → dynamic INT8`.

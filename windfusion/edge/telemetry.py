@@ -108,12 +108,19 @@ class AdaptiveTelemetryPolicy:
     def encode(self, values: np.ndarray, decision: TelemetryDecision) -> dict[str, object]:
         """Delta-code, deadband and quantise a window (or bypass it raw)."""
         values = np.asarray(values, dtype=np.float32)
+        baseline = values[:1].astype(np.float32)
         if decision.mode == "raw":
             payload = values
         else:
             payload = values[:: decision.keep_every]
+            baseline = values[:1].astype(np.float32)
             if decision.mode == "compressed":
-                deltas = np.diff(payload, prepend=payload[:1])
+                # Keep the first sample as the DC baseline: without it the
+                # decoder integrates from zero and loses the operating point.
+                # Baseline and deltas are stored separately so the payload
+                # keeps one dtype (int32) instead of being promoted to float64.
+                baseline = payload[:1].astype(np.float32)
+                deltas = np.diff(payload, axis=0)
                 deltas[np.abs(deltas) < 1e-3] = 0.0
                 payload = np.round(deltas / 0.01).astype(np.int32)
         return {
@@ -121,6 +128,7 @@ class AdaptiveTelemetryPolicy:
             "shape": values.shape,
             "keep_every": decision.keep_every,
             "samples": payload,
+            "baseline": baseline if decision.mode == "compressed" else None,
             "risk": decision.risk,
             "bytes_raw": int(values.nbytes),
             "bytes_encoded": int(np.asarray(payload).nbytes),
@@ -131,17 +139,24 @@ class AdaptiveTelemetryPolicy:
         """Reconstruct an approximation of the original window."""
         payload = np.asarray(encoded["samples"])
         mode = str(encoded["mode"])
-        if mode == "raw":
+        if mode in ("raw", "detailed"):
             return payload.astype(np.float32)
-        if mode == "detailed":
-            return payload.astype(np.float32)
+        baseline = np.asarray(encoded["baseline"], dtype=np.float32)
         deltas = payload.astype(np.float32) * 0.01
-        return np.cumsum(deltas).astype(np.float32)
+        return np.concatenate([baseline, baseline + np.cumsum(deltas, axis=0)], axis=0).astype(
+            np.float32
+        )
 
 
-def reconstruction_error(original: np.ndarray, decoded: np.ndarray) -> dict[str, float]:
-    """Fidelity metrics for a compressed window (up to the sampling grid)."""
-    original = np.asarray(original, dtype=np.float32)
+def reconstruction_error(
+    original: np.ndarray, decoded: np.ndarray, keep_every: int = 1
+) -> dict[str, float]:
+    """Fidelity metrics for a compressed window.
+
+    ``decoded[k]`` reconstructs ``original[k * keep_every]``; comparing against
+    ``original[k]`` would measure grid misalignment rather than codec error.
+    """
+    original = np.asarray(original, dtype=np.float32)[:: max(int(keep_every), 1)]
     decoded = np.asarray(decoded, dtype=np.float32)
     n = min(original.shape[0], decoded.shape[0])
     if n == 0:
@@ -168,7 +183,9 @@ def evaluate_policy(
         modes[decision.mode] = modes.get(decision.mode, 0) + 1
         encoded = policy.encode(window, decision)
         decoded = policy.decode(encoded)
-        errors.append(reconstruction_error(window[: len(decoded)] if decision.mode != "raw" else window, decoded))
+        errors.append(
+            reconstruction_error(window, decoded, keep_every=decision.keep_every)
+        )
         raw_bytes += int(encoded["bytes_raw"])
         encoded_bytes += int(encoded["bytes_encoded"])
     return {

@@ -16,12 +16,14 @@ from dataclasses import dataclass, field
 import torch
 
 # Documented research defaults (documentation values, not OEM data).
-RESEARCH_LIMITS: dict[str, float] = {
-    "gearbox_oil_temp_c": 80.0,
-    "generator_winding_temp_c": 120.0,
-    "main_bearing_temp_c": 95.0,
-    "vibration_rms": 4.5,
-    "rotor_speed": 2.2,
+# name -> (limit, normalisation scale). The scale keeps the penalty O(1) even
+# when a channel is far outside its envelope (e.g. a clipped or failed sensor).
+RESEARCH_LIMITS: dict[str, tuple[float, float]] = {
+    "gearbox_oil_temp_c": (80.0, 40.0),
+    "generator_winding_temp_c": (120.0, 50.0),
+    "main_bearing_temp_c": (95.0, 40.0),
+    "vibration_rms": (4.5, 5.0),
+    "rotor_speed": (2.2, 1.0),
 }
 
 
@@ -45,18 +47,29 @@ class PhysicsWeights:
         }
 
 
-def soft_hinge(x: torch.Tensor, limit: float | torch.Tensor, beta: float = 5.0) -> torch.Tensor:
-    """Smooth one-sided penalty: ~0 below the limit, quadratic above it."""
-    excess = x - limit
+def soft_hinge(
+    x: torch.Tensor, limit: float | torch.Tensor, scale: float = 1.0, beta: float = 1.0
+) -> torch.Tensor:
+    """Smooth one-sided penalty: ~0 below the limit, quadratic above it.
+
+    ``excess`` is normalised by ``scale`` before the hinge so that a sensor
+    pinned at its clipping value contributes an O(1) penalty instead of
+    dominating the objective.
+    """
+    excess = (x - limit) / max(scale, 1e-6)
     return torch.nn.functional.softplus(beta * excess).pow(2) / (beta**2)
 
 
 def limit_penalties(raw: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
     """Soft-hinge penalty for every channel with a documented limit."""
     out: dict[str, torch.Tensor] = {}
-    for name, limit in RESEARCH_LIMITS.items():
+    for name, (limit, scale) in RESEARCH_LIMITS.items():
         if name in raw:
-            out[f"limit_{name}"] = soft_hinge(raw[name], limit)
+            values = raw[name]
+            # A missing channel carries no evidence of a limit violation.
+            present = ~torch.isnan(values)
+            penalty = soft_hinge(torch.nan_to_num(values, nan=limit), limit, scale=scale)
+            out[f"limit_{name}"] = penalty * present.to(penalty.dtype)
     return out
 
 

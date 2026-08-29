@@ -49,6 +49,14 @@ Modes: `raw` (bypass, full resolution), `detailed` (every 2nd sample), `compress
 `evaluate_policy` reports bandwidth reduction alongside reconstruction error so the trade-off is
 measured, not assumed.
 
+Codec contract: in `compressed` mode the first sample is stored separately as a **DC baseline** and
+the payload is the int32 quantised deltas. Baseline and deltas are kept apart so the payload keeps a
+single dtype (a mixed float/int payload is silently promoted to float64 and doubles the byte count),
+and so the decoder reconstructs `baseline + cumsum(deltas)` instead of integrating from zero and
+losing the operating point. `reconstruction_error(original, decoded, keep_every)` compares
+`decoded[k]` against `original[k * keep_every]`: a naive row-for-row comparison measures grid
+misalignment, not codec error.
+
 ## Pre-deployment checklist
 
 - [ ] Numerical parity: PyTorch vs ONNX Runtime (and vs the quantised model).

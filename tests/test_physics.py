@@ -3,7 +3,8 @@
 import torch
 
 from windfusion.physics import aerodynamics, drivetrain, electrical, thermal
-from windfusion.physics.constraints import PhysicsWeights, physics_loss, soft_hinge
+from windfusion.physics.constraints import limit_penalties, PhysicsWeights, physics_loss, soft_hinge
+from windfusion.data.schema import CHANNELS, CHANNEL_INDEX
 from windfusion.physics.residuals import RESIDUAL_NAMES, compute_residuals, physics_feature_vector
 
 
@@ -108,3 +109,68 @@ def test_physics_feature_vector_shape_and_safety():
     assert features.shape == (3, 5)
     assert torch.isfinite(features).all()
     assert (features[:, 4] <= 1.0).all()
+
+
+def test_missing_channels_do_not_create_physics_violations():
+    """A dropout is missing data, not evidence of physical inconsistency."""
+    raw = torch.zeros(4, len(CHANNELS), dtype=torch.float32)
+    raw[0] = SANE
+    raw[1] = SANE
+    raw[1, CHANNEL_INDEX["wind_speed"]] = float("nan")
+    raw[2] = SANE
+    raw[2, CHANNEL_INDEX["grid_frequency_hz"]] = float("nan")
+    raw[3] = float("nan")
+
+    residuals = compute_residuals(raw)
+    for name in ("aero", "drive", "thermal", "grid", "consistency"):
+        assert torch.isfinite(residuals[name]).all(), name
+        assert float(residuals[name].abs().max()) <= 10.0, name
+    assert float(residuals["aero"][1]) == 0.0
+    assert float(residuals["grid"][2]) == 0.0
+    assert float(residuals["drive"][3]) == 0.0
+
+
+def test_betz_violation_is_normalised_by_rated_power():
+    """Zero wind speed must not produce a megawatt-scale 'violation'."""
+    raw = torch.zeros(2, len(CHANNELS), dtype=torch.float32)
+    raw[0] = SANE
+    raw[1] = SANE
+    raw[1, CHANNEL_INDEX["wind_speed"]] = 0.0
+    raw[1, CHANNEL_INDEX["active_power_kw"]] = 2000.0
+    consistency = compute_residuals(raw)["consistency"]
+    assert float(consistency[1]) <= 2.0, float(consistency[1])
+
+
+def test_limit_penalty_stays_bounded_for_a_clipped_sensor():
+    raw = {
+        "generator_winding_temp_c": torch.tensor([60.0, 121.0, 180.0]),
+        "vibration_rms": torch.tensor([1.0, 4.6, 20.0]),
+    }
+    penalties = limit_penalties(raw)
+    assert torch.isfinite(penalties["limit_generator_winding_temp_c"]).all()
+    assert float(penalties["limit_generator_winding_temp_c"].max()) < 10.0
+
+    with_missing = dict(raw)
+    with_missing["generator_winding_temp_c"] = torch.tensor([60.0, float("nan"), 180.0])
+    out = limit_penalties(with_missing)
+    assert float(out["limit_generator_winding_temp_c"][1]) == 0.0
+
+
+# A physically consistent operating point, repeated across the batch.
+SANE = torch.tensor(
+    [
+        11.0,   # wind_speed
+        1.4,    # rotor_speed
+        3.0,    # pitch_angle
+        1600.0, # active_power_kw
+        1.2,    # vibration_rms
+        62.0,   # gearbox_oil_temp_c
+        85.0,   # generator_winding_temp_c
+        55.0,   # main_bearing_temp_c
+        18.0,   # ambient_temp_c
+        1400.0, # phase_current_a
+        1.1e6,  # generator_torque_nm
+        50.0,   # grid_frequency_hz
+    ],
+    dtype=torch.float32,
+)

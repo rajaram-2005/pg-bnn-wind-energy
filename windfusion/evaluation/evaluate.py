@@ -184,11 +184,13 @@ def evaluate_verification(
             completeness = float(batch["data_completeness"][i].reshape(()))
             twin = None
             if verifier is not None:
+                # The twin is driven by the model's own estimate; using the
+                # ground-truth health here would leak the label into the verdict.
                 twin = twin_from_prediction(
                     {
-                        "health": float(batch["target"][i, 1]),
+                        "health": float(prediction["mean"][i, 1]),
                         "uncertainty": epistemic,
-                        "rul_days": rul_days,
+                        "rul_days": float(prediction["mean"][i, 2]) * RUL_SCALE_DAYS,
                     }
                 )
                 result = verifier.verify_window(
@@ -197,7 +199,6 @@ def evaluate_verification(
                     physics_residual=residual,
                     twin_health=twin.state.health,
                     data_completeness=completeness,
-                    rul_days=rul_days,
                 )
             else:
                 result = plain.verify(

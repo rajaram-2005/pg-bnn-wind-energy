@@ -33,6 +33,28 @@ def _get(raw: torch.Tensor, name: str) -> torch.Tensor:
     return torch.nan_to_num(raw[..., _channel_index()[name]], nan=0.0, posinf=0.0, neginf=0.0)
 
 
+RESIDUAL_CLAMP = 10.0
+
+
+def _required(raw: torch.Tensor, names: tuple[str, ...]) -> torch.Tensor:
+    """Per-sample validity mask: True when every required channel is present.
+
+    A residual computed from a missing channel is not evidence of physical
+    inconsistency — it is missing data. Those samples are neutralised here and
+    handled separately by the verifier through ``data_completeness``.
+    """
+    mask = torch.ones(raw.shape[:-1], dtype=torch.bool, device=raw.device)
+    index = _channel_index()
+    for name in names:
+        mask = mask & ~torch.isnan(raw[..., index[name]])
+    return mask
+
+
+def _safe(residual: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+    """Zero out samples with missing inputs and bound the rest."""
+    return (residual * mask.to(residual.dtype)).clamp(-RESIDUAL_CLAMP, RESIDUAL_CLAMP)
+
+
 def compute_residuals(
     raw: torch.Tensor,
     turbine: TurbineConfig | None = None,
@@ -69,19 +91,24 @@ def compute_residuals(
     power_w = power_kw * 1000.0
 
     # ── aerodynamic ────────────────────────────────────────────────────────
+    aero_mask = _required(raw, ("wind_speed", "rotor_speed", "pitch_angle", "active_power_kw"))
     tsr = aerodynamics.tip_speed_ratio(wind, omega, turbine.rotor_radius_m)
     cp = aerodynamics.power_coefficient(tsr, pitch)
     p_aero_w = aerodynamics.aerodynamic_power(wind, cp, area, turbine.air_density)
     p_elec_expected_w = p_aero_w * turbine.gearbox_efficiency * turbine.generator_efficiency
-    aero = (power_w - p_elec_expected_w) / rated_w
+    aero = _safe((power_w - p_elec_expected_w) / rated_w, aero_mask)
 
     # ── drivetrain ─────────────────────────────────────────────────────────
+    drive_mask = _required(raw, ("rotor_speed", "active_power_kw", "generator_torque_nm"))
     p_mech_w = power_w / max(turbine.generator_efficiency, 1e-3)
     torque_expected = drivetrain.shaft_torque(p_mech_w, omega)
     rated_torque = rated_w / max(turbine.omega_rated, 0.1)
-    drive = (torque_nm - torque_expected) / max(rated_torque, 1.0)
+    drive = _safe((torque_nm - torque_expected) / max(rated_torque, 1.0), drive_mask)
 
     # ── thermal (steady state + second law) ────────────────────────────────
+    thermal_mask = _required(
+        raw, ("generator_winding_temp_c", "ambient_temp_c", "phase_current_a", "rotor_speed")
+    )
     # Iron loss is modelled as a linear function of rotor speed (proxy):
     # the generator electrical frequency scales with omega.
     heat_w = thermal.generator_heat_dissipation(
@@ -91,17 +118,26 @@ def compute_residuals(
     thermal_res = (winding_c - t_ss) / 100.0
     thermal_res = thermal_res + thermal.second_law_penalty(winding_c, ambient_c, heat_w)
     thermal_res = thermal_res + 0.1 * thermal.second_law_penalty(oil_c, ambient_c, heat_w)
+    thermal_res = _safe(thermal_res, thermal_mask)
 
     # ── grid ───────────────────────────────────────────────────────────────
+    grid_mask = _required(
+        raw, ("active_power_kw", "phase_current_a", "grid_frequency_hz")
+    )
     voltage = torch.full_like(wind, turbine.nominal_voltage_v)
     pf = torch.full_like(wind, turbine.power_factor)
     grid = electrical.grid_residual(power_w, voltage, current_a, pf, rated_w)
-    grid = grid + electrical.frequency_stress(freq_hz, turbine.nominal_frequency_hz)
+    grid = _safe(
+        grid + electrical.frequency_stress(freq_hz, turbine.nominal_frequency_hz), grid_mask
+    )
 
     # ── energy conservation / Betz ─────────────────────────────────────────
+    # Normalised by rated power (not by the available wind power, which is zero
+    # when the wind channel is missing or the turbine is parked).
     overproduction = torch.relu(power_w - p_aero_w) / rated_w
-    betz = aerodynamics.betz_violation(power_w, wind, area, turbine.air_density)
-    consistency = overproduction + betz
+    betz = torch.relu(power_w - aerodynamics.betz_power(wind, area, turbine.air_density)) / rated_w
+    consistency_mask = _required(raw, ("wind_speed", "rotor_speed", "pitch_angle", "active_power_kw"))
+    consistency = _safe(overproduction + betz, consistency_mask)
 
     return {
         "aero": aero,
