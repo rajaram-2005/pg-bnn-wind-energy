@@ -1,22 +1,87 @@
-"""Unified modular physics residual aggregation."""
+"""Unified modular physics residual aggregation.
 
-from dataclasses import dataclass
+Provenance: ``soft_hinge_limits`` (wind-turbine-pg-bnn
+``src/physics/constraints.py::_soft_relu_penalty``) and the modular residual
+weighting introduced in WindFusion-Lite v0.1.
+
+The limits below are **research defaults, not OEM limits**. They exist so the
+model is penalised for leaving the physically plausible envelope; a deployment
+must substitute asset-specific limits.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
 
 import torch
+
+# Documented research defaults (documentation values, not OEM data).
+# name -> (limit, normalisation scale). The scale keeps the penalty O(1) even
+# when a channel is far outside its envelope (e.g. a clipped or failed sensor).
+RESEARCH_LIMITS: dict[str, tuple[float, float]] = {
+    "gearbox_oil_temp_c": (80.0, 40.0),
+    "generator_winding_temp_c": (120.0, 50.0),
+    "main_bearing_temp_c": (95.0, 40.0),
+    "vibration_rms": (4.5, 5.0),
+    "rotor_speed": (2.2, 1.0),
+}
 
 
 @dataclass(frozen=True)
 class PhysicsWeights:
-    aero: float = 0.2
+    """Per-residual loss weights."""
+
+    aero: float = 0.20
     drive: float = 0.25
     thermal: float = 0.25
     grid: float = 0.15
     consistency: float = 0.15
 
+    def as_dict(self) -> dict[str, float]:
+        return {
+            "aero": self.aero,
+            "drive": self.drive,
+            "thermal": self.thermal,
+            "grid": self.grid,
+            "consistency": self.consistency,
+        }
+
+
+def soft_hinge(
+    x: torch.Tensor, limit: float | torch.Tensor, scale: float = 1.0, beta: float = 1.0
+) -> torch.Tensor:
+    """Smooth one-sided penalty: ~0 below the limit, quadratic above it.
+
+    ``excess`` is normalised by ``scale`` before the hinge so that a sensor
+    pinned at its clipping value contributes an O(1) penalty instead of
+    dominating the objective.
+    """
+    excess = (x - limit) / max(scale, 1e-6)
+    return torch.nn.functional.softplus(beta * excess).pow(2) / (beta**2)
+
+
+def limit_penalties(raw: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
+    """Soft-hinge penalty for every channel with a documented limit."""
+    out: dict[str, torch.Tensor] = {}
+    for name, (limit, scale) in RESEARCH_LIMITS.items():
+        if name in raw:
+            values = raw[name]
+            # A missing channel carries no evidence of a limit violation.
+            present = ~torch.isnan(values)
+            penalty = soft_hinge(torch.nan_to_num(values, nan=limit), limit, scale=scale)
+            out[f"limit_{name}"] = penalty * present.to(penalty.dtype)
+    return out
+
 
 def physics_loss(
-    residuals: dict[str, torch.Tensor], weights: PhysicsWeights | None = None
+    residuals: dict[str, torch.Tensor],
+    weights: PhysicsWeights | None = None,
 ) -> tuple[torch.Tensor, dict[str, torch.Tensor]]:
+    """Weighted sum of squared residuals.
+
+    Unknown residual names fall back to the ``consistency`` weight so new
+    architectures can add residuals without editing this function.
+    """
     weights = weights or PhysicsWeights()
     terms = {name: value.pow(2).mean() for name, value in residuals.items()}
     zero = next(iter(terms.values())).new_zeros(()) if terms else torch.tensor(0.0)
@@ -25,3 +90,32 @@ def physics_loss(
         start=zero,
     )
     return total, terms
+
+
+@dataclass(frozen=True)
+class PhysicsReport:
+    """Per-sample residual summary surfaced to the verifier and reports."""
+
+    residuals: dict[str, float] = field(default_factory=dict)
+    total: float = 0.0
+
+    def as_dict(self) -> dict[str, float]:
+        return {**self.residuals, "total": self.total}
+
+
+def summarise_residuals(residuals: dict[str, torch.Tensor], index: int = 0) -> PhysicsReport:
+    """Extract one sample's residuals as plain floats (for reporting)."""
+    values = {k: float(v.reshape(v.shape[0], -1)[index].abs().mean()) for k, v in residuals.items()}
+    total = float(sum(values.values()))
+    return PhysicsReport(residuals=values, total=total)
+
+
+__all__ = [
+    "RESEARCH_LIMITS",
+    "PhysicsReport",
+    "PhysicsWeights",
+    "limit_penalties",
+    "physics_loss",
+    "soft_hinge",
+    "summarise_residuals",
+]

@@ -1,0 +1,1966 @@
+{
+  "schema": "windfusion-benchmark/2",
+  "windfusion_version": "0.2.0",
+  "synthetic": true,
+  "stamp": "SYNTHETIC (simulated fleet, not field data)",
+  "fleet": {
+    "summary": {
+      "n_turbines": 36,
+      "seq_len": 1440,
+      "n_sites": 6,
+      "fault_modes": {
+        "healthy": 8,
+        "bearing_wear": 7,
+        "gearbox_overheat": 7,
+        "generator_winding": 7,
+        "blade_aero_loss": 7
+      },
+      "end_damage_mean": 0.6022799015045166,
+      "end_damage_max": 1.0499999523162842,
+      "end_rul_days_mean": 261.4234313964844,
+      "end_rul_days_min": 0.0,
+      "fraction_failed_or_near": 0.3611111111111111,
+      "missing_value_fraction": 0.012022569444444445,
+      "checksum": "bd08a45a71d0ecea"
+    },
+    "config": {
+      "source": "synthetic",
+      "root": "data",
+      "fleet_version": "synthetic-v1",
+      "n_turbines": 36,
+      "seq_len": 1440,
+      "sample_interval_s": 600,
+      "window": 24,
+      "stride": 6,
+      "missing_rate": 0.01,
+      "horizon_days": 30.0,
+      "seed": 7,
+      "split": {
+        "train": 0.6,
+        "val": 0.2,
+        "test": 0.2
+      },
+      "checksum": null
+    }
+  },
+  "footprint": {
+    "results": {
+      "aetheris-wind": {
+        "model_id": "aetheris-wind",
+        "parameters": 87643,
+        "size_fp32_mb": 0.3343,
+        "size_int8_mb": 0.2867,
+        "latency_ms_median": 1.5098,
+        "latency_ms_p95": 1.5872,
+        "throughput_windows_per_s": 662.34,
+        "peak_rss_mb": 521.83,
+        "energy_per_inference": "NOT MEASURED",
+        "device": "cpu"
+      },
+      "ra-wind": {
+        "model_id": "ra-wind",
+        "parameters": 53130,
+        "size_fp32_mb": 0.2027,
+        "size_int8_mb": 0.1624,
+        "latency_ms_median": 1.4309,
+        "latency_ms_p95": 1.6076,
+        "throughput_windows_per_s": 698.86,
+        "peak_rss_mb": 521.83,
+        "energy_per_inference": "NOT MEASURED",
+        "device": "cpu"
+      },
+      "qinglong-wind": {
+        "model_id": "qinglong-wind",
+        "parameters": 91613,
+        "size_fp32_mb": 0.3495,
+        "size_int8_mb": 0.2206,
+        "latency_ms_median": 1.6271,
+        "latency_ms_p95": 1.7135,
+        "throughput_windows_per_s": 614.59,
+        "peak_rss_mb": 522.98,
+        "energy_per_inference": "NOT MEASURED",
+        "device": "cpu"
+      },
+      "vayu-wind": {
+        "model_id": "vayu-wind",
+        "parameters": 56444,
+        "size_fp32_mb": 0.2153,
+        "size_int8_mb": 0.1817,
+        "latency_ms_median": 1.531,
+        "latency_ms_p95": 2.2992,
+        "throughput_windows_per_s": 653.17,
+        "peak_rss_mb": 522.98,
+        "energy_per_inference": "NOT MEASURED",
+        "device": "cpu"
+      },
+      "odin-wind": {
+        "model_id": "odin-wind",
+        "parameters": 71006,
+        "size_fp32_mb": 0.2709,
+        "size_int8_mb": 0.2202,
+        "latency_ms_median": 1.5309,
+        "latency_ms_p95": 1.7065,
+        "throughput_windows_per_s": 653.21,
+        "peak_rss_mb": 523.3,
+        "energy_per_inference": "NOT MEASURED",
+        "device": "cpu"
+      },
+      "aeolus-wind": {
+        "model_id": "aeolus-wind",
+        "parameters": 92518,
+        "size_fp32_mb": 0.3529,
+        "size_int8_mb": 0.2867,
+        "latency_ms_median": 1.539,
+        "latency_ms_p95": 1.7267,
+        "throughput_windows_per_s": 649.77,
+        "peak_rss_mb": 523.3,
+        "energy_per_inference": "NOT MEASURED",
+        "device": "cpu"
+      },
+      "windfusion-edge": {
+        "model_id": "windfusion-edge",
+        "parameters": 9714,
+        "size_fp32_mb": 0.0371,
+        "size_int8_mb": 0.0281,
+        "latency_ms_median": 0.7755,
+        "latency_ms_p95": 0.8855,
+        "throughput_windows_per_s": 1289.49,
+        "peak_rss_mb": 523.3,
+        "energy_per_inference": "NOT MEASURED",
+        "device": "cpu"
+      },
+      "windfusion-lite": {
+        "model_id": "windfusion-lite",
+        "parameters": 50330,
+        "size_fp32_mb": 0.192,
+        "size_int8_mb": 0.1623,
+        "latency_ms_median": 1.3152,
+        "latency_ms_p95": 1.4201,
+        "throughput_windows_per_s": 760.34,
+        "peak_rss_mb": 523.3,
+        "energy_per_inference": "NOT MEASURED",
+        "device": "cpu"
+      },
+      "windfusion-research": {
+        "model_id": "windfusion-research",
+        "parameters": 467211,
+        "size_fp32_mb": 1.7823,
+        "size_int8_mb": 1.5129,
+        "latency_ms_median": 3.2652,
+        "latency_ms_p95": 3.553,
+        "throughput_windows_per_s": 306.26,
+        "peak_rss_mb": 526.13,
+        "energy_per_inference": "NOT MEASURED",
+        "device": "cpu"
+      }
+    },
+    "environment": {
+      "python": "3.11.2",
+      "torch": "2.13.0+cu130",
+      "platform": "Linux-6.1.158+-x86_64-with-glibc2.36",
+      "threads": 1,
+      "cpu_count": 2
+    },
+    "not_measured": [
+      "energy_per_inference",
+      "on-device RAM (target hardware)",
+      "field accuracy"
+    ]
+  },
+  "supervised": {
+    "mean": {
+      "model": "mean",
+      "parameters": 0,
+      "train_seconds": 0.0,
+      "metrics": {
+        "regression": {
+          "failure_probability_30d": {
+            "mae": 0.21760365545281377,
+            "rmse": 0.3977225216545817,
+            "r2": -0.11904608329751554
+          },
+          "health_index": {
+            "mae": 0.28288373602200534,
+            "rmse": 0.3875511115522019,
+            "r2": -0.16909674715326362
+          },
+          "rul_days": {
+            "mae": 0.772739027341423,
+            "rmse": 0.9162782722452385,
+            "r2": -0.110649092947676,
+            "mae_days": 282.0497449796194,
+            "rmse_days": 334.4415693695121
+          }
+        },
+        "classification": {
+          "auroc": 0.5,
+          "accuracy": 0.18806509945750452,
+          "precision": 0.18806509945750452,
+          "recall": 1.0,
+          "f1": 0.3165905631659056,
+          "false_alarm_rate": 1.0,
+          "n_positive": 312,
+          "threshold": 0.5
+        },
+        "early_warning": {
+          "accuracy": 0.8119349005424955,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "false_alarm_rate": 0.0,
+          "auroc": 0.5,
+          "mean_lead_time_days": 0.0,
+          "warning_horizon_days": 30.0,
+          "n_at_risk": 312
+        },
+        "calibration": {
+          "ece": 0.109986,
+          "nll": 1.079195,
+          "crps": 0.376822,
+          "coverage": 0.9,
+          "empirical_coverage": 0.7167,
+          "mean_interval_width": 1.562132
+        },
+        "fleet": {
+          "mean_utilization": 1.0,
+          "fraction_at_risk": 0.0,
+          "mean_rul_days": 572.2085523605347
+        },
+        "n_samples": 1659
+      }
+    },
+    "ridge": {
+      "model": "ridge",
+      "parameters": 879,
+      "train_seconds": 0.8,
+      "metrics": {
+        "regression": {
+          "failure_probability_30d": {
+            "mae": 0.16800073866543297,
+            "rmse": 0.26035589036100987,
+            "r2": 0.520462672714203
+          },
+          "health_index": {
+            "mae": 0.1022924786734475,
+            "rmse": 0.15007903131692865,
+            "r2": 0.8246795752093825
+          },
+          "rul_days": {
+            "mae": 0.3411101728801673,
+            "rmse": 0.4790197698359309,
+            "r2": 0.6964508890215522,
+            "mae_days": 124.50521310126108,
+            "rmse_days": 174.8422159901148
+          }
+        },
+        "classification": {
+          "auroc": 0.9485109359830963,
+          "accuracy": 0.5491259795057264,
+          "precision": 0.2935606060606061,
+          "recall": 0.9935897435897436,
+          "f1": 0.45321637426900596,
+          "false_alarm_rate": 0.5538233110616184,
+          "n_positive": 312,
+          "threshold": 0.5
+        },
+        "early_warning": {
+          "accuracy": 0.8728149487643159,
+          "precision": 0.963302752293578,
+          "recall": 0.33653846153846156,
+          "f1": 0.49881235154394304,
+          "false_alarm_rate": 0.002969561989606533,
+          "auroc": 0.8852792530409457,
+          "mean_lead_time_days": 2.3432560857618228,
+          "warning_horizon_days": 30.0,
+          "n_at_risk": 312
+        },
+        "calibration": {
+          "ece": 0.026803,
+          "nll": 0.235268,
+          "crps": 0.168063,
+          "coverage": 0.9,
+          "empirical_coverage": 0.8267,
+          "mean_interval_width": 0.731394
+        },
+        "fleet": {
+          "mean_utilization": 0.9232051285965414,
+          "fraction_at_risk": 0.09463532248342375,
+          "mean_rul_days": 497.43178230477355
+        },
+        "n_samples": 1659
+      }
+    },
+    "mlp": {
+      "model": "mlp",
+      "parameters": 10755,
+      "train_seconds": 1.77,
+      "metrics": {
+        "regression": {
+          "failure_probability_30d": {
+            "mae": 0.11082529534816046,
+            "rmse": 0.2310965490062509,
+            "r2": 0.6221890652650375
+          },
+          "health_index": {
+            "mae": 0.11266544866367205,
+            "rmse": 0.17321682557332244,
+            "r2": 0.7664538947724042
+          },
+          "rul_days": {
+            "mae": 0.3446852109260097,
+            "rmse": 0.5215878072626702,
+            "r2": 0.6401040568715534,
+            "mae_days": 125.81010198799353,
+            "rmse_days": 190.37954965087462
+          }
+        },
+        "classification": {
+          "auroc": 0.9643581177545543,
+          "accuracy": 0.4050632911392405,
+          "precision": 0.23978411719352352,
+          "recall": 0.9967948717948718,
+          "f1": 0.38657551274083285,
+          "false_alarm_rate": 0.7319970304380103,
+          "n_positive": 312,
+          "threshold": 0.5
+        },
+        "early_warning": {
+          "accuracy": 0.8698010849909584,
+          "precision": 0.8380281690140845,
+          "recall": 0.3814102564102564,
+          "f1": 0.5242290748898678,
+          "false_alarm_rate": 0.017074981440237565,
+          "auroc": 0.9013263091770887,
+          "mean_lead_time_days": 1.7498958427820965,
+          "warning_horizon_days": 30.0,
+          "n_at_risk": 312
+        },
+        "calibration": {
+          "ece": 0.064503,
+          "nll": 0.317746,
+          "crps": 0.179012,
+          "coverage": 0.9,
+          "empirical_coverage": 0.8427,
+          "mean_interval_width": 0.870285
+        },
+        "fleet": {
+          "mean_utilization": 0.9016504722120362,
+          "fraction_at_risk": 0.12597950572634117,
+          "mean_rul_days": 476.9809445591038
+        },
+        "n_samples": 1659
+      }
+    },
+    "gru": {
+      "model": "gru",
+      "parameters": 16131,
+      "train_seconds": 8.64,
+      "metrics": {
+        "regression": {
+          "failure_probability_30d": {
+            "mae": 0.1067096063201831,
+            "rmse": 0.19524516769220604,
+            "r2": 0.7303203407324522
+          },
+          "health_index": {
+            "mae": 0.0843684966027548,
+            "rmse": 0.10924578474371108,
+            "r2": 0.907102964355736
+          },
+          "rul_days": {
+            "mae": 0.22779017259349127,
+            "rmse": 0.3715468808948919,
+            "r2": 0.8173795833203112,
+            "mae_days": 83.1434129966243,
+            "rmse_days": 135.61461152663554
+          }
+        },
+        "classification": {
+          "auroc": 0.9828702910551463,
+          "accuracy": 0.8378541289933695,
+          "precision": 0.5370051635111877,
+          "recall": 1.0,
+          "f1": 0.6987681970884659,
+          "false_alarm_rate": 0.19970304380103934,
+          "n_positive": 312,
+          "threshold": 0.5
+        },
+        "early_warning": {
+          "accuracy": 0.8872814948764316,
+          "precision": 0.8306878306878307,
+          "recall": 0.5032051282051282,
+          "f1": 0.626746506986028,
+          "false_alarm_rate": 0.023756495916852263,
+          "auroc": 0.9371728247006643,
+          "mean_lead_time_days": 3.603582500927239,
+          "warning_horizon_days": 30.0,
+          "n_at_risk": 312
+        },
+        "calibration": {
+          "ece": 0.050807,
+          "nll": -0.117893,
+          "crps": 0.123879,
+          "coverage": 0.9,
+          "empirical_coverage": 0.8508,
+          "mean_interval_width": 0.610538
+        },
+        "fleet": {
+          "mean_utilization": 0.8662350249746502,
+          "fraction_at_risk": 0.16515973477998794,
+          "mean_rul_days": 468.3018980022324
+        },
+        "n_samples": 1659
+      }
+    },
+    "windfusion-edge": {
+      "model": "windfusion-edge",
+      "parameters": 9714,
+      "train_seconds": 53.55,
+      "epochs_run": 11,
+      "best_val_total": -0.479709,
+      "metrics": {
+        "regression": {
+          "failure_probability_30d": {
+            "mae": 0.1544797747159031,
+            "rmse": 0.2822529573188463,
+            "r2": 0.43640827891873235
+          },
+          "health_index": {
+            "mae": 0.10327873917997125,
+            "rmse": 0.14140720804090087,
+            "r2": 0.8443548566969677
+          },
+          "rul_days": {
+            "mae": 0.3066281712859742,
+            "rmse": 0.4516467829995539,
+            "r2": 0.7301515473295375,
+            "mae_days": 111.91928251938059,
+            "rmse_days": 164.8510757948372
+          }
+        },
+        "classification": {
+          "auroc": 0.956103782384406,
+          "accuracy": 0.4804098854731766,
+          "precision": 0.2645547945205479,
+          "recall": 0.9903846153846154,
+          "f1": 0.41756756756756747,
+          "false_alarm_rate": 0.637713437268003,
+          "n_positive": 312,
+          "threshold": 0.5
+        },
+        "early_warning": {
+          "accuracy": 0.8390596745027125,
+          "precision": 0.6618705035971223,
+          "recall": 0.2948717948717949,
+          "f1": 0.40798226164079826,
+          "false_alarm_rate": 0.034892353377876766,
+          "auroc": 0.8933551291569108,
+          "mean_lead_time_days": 4.251746508019531,
+          "warning_horizon_days": 30.0,
+          "n_at_risk": 312
+        },
+        "calibration": {
+          "ece": 0.095473,
+          "nll": -0.062342,
+          "crps": 0.152551,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9385,
+          "mean_interval_width": 1.00722
+        },
+        "fleet": {
+          "mean_utilization": 0.8922255590357703,
+          "fraction_at_risk": 0.14647377938517178,
+          "mean_rul_days": 440.5993926999051
+        },
+        "n_samples": 1659
+      },
+      "timing": {
+        "windows": 1659,
+        "seconds": 1.6068,
+        "windows_per_second": 1032.51,
+        "ms_per_window_mc": 0.969,
+        "mc_samples": 8
+      },
+      "calibration": {
+        "temperature": [
+          1.276777,
+          0.698853,
+          0.898895
+        ],
+        "conformal_quantile": [
+          1.109247,
+          1.799815,
+          1.621316
+        ],
+        "coverage": 0.9,
+        "n_calibration": 1659,
+        "ece_before": 0.1090683928794331,
+        "ece_after": 0.08040318803654777,
+        "nll_before": -0.7283104062080383,
+        "nll_after": -0.8210247755050659
+      },
+      "verification": {
+        "n": 1659,
+        "verdict_histogram": {
+          "NORMAL": 523,
+          "WARNING": 735,
+          "CRITICAL": 401
+        },
+        "truth_histogram": {
+          "NORMAL": 1347,
+          "WARNING": 44,
+          "CRITICAL": 268
+        },
+        "recall_by_class": {
+          "NORMAL": 0.3875,
+          "WARNING": 0.2727,
+          "CRITICAL": 0.9366
+        },
+        "majority_class_rate": 0.8119,
+        "abstention_rate": 0.0,
+        "coverage": 1.0,
+        "accuracy_on_decided": 0.4732,
+        "false_critical_rate": 0.0904,
+        "missed_critical_rate": 0.0102,
+        "use_twin": true
+      }
+    },
+    "windfusion-lite": {
+      "model": "windfusion-lite",
+      "parameters": 50330,
+      "train_seconds": 64.34,
+      "epochs_run": 11,
+      "best_val_total": -0.793778,
+      "metrics": {
+        "regression": {
+          "failure_probability_30d": {
+            "mae": 0.13395447131710614,
+            "rmse": 0.2413118817628268,
+            "r2": 0.5880495177604266
+          },
+          "health_index": {
+            "mae": 0.09877083482273538,
+            "rmse": 0.12665640308018278,
+            "r2": 0.8751332583539233
+          },
+          "rul_days": {
+            "mae": 0.3051178778964221,
+            "rmse": 0.43562602266882555,
+            "r2": 0.7489560730417819,
+            "mae_days": 111.36802543219406,
+            "rmse_days": 159.0034982741213
+          }
+        },
+        "classification": {
+          "auroc": 0.971929549045362,
+          "accuracy": 0.540084388185654,
+          "precision": 0.29023255813953486,
+          "recall": 1.0,
+          "f1": 0.44989185291997114,
+          "false_alarm_rate": 0.5664439495174461,
+          "n_positive": 312,
+          "threshold": 0.5
+        },
+        "early_warning": {
+          "accuracy": 0.8474984930681133,
+          "precision": 0.7062937062937062,
+          "recall": 0.32371794871794873,
+          "f1": 0.443956043956044,
+          "false_alarm_rate": 0.031180400890868598,
+          "auroc": 0.9028134696286144,
+          "mean_lead_time_days": 3.2387997635863814,
+          "warning_horizon_days": 30.0,
+          "n_at_risk": 312
+        },
+        "calibration": {
+          "ece": 0.072232,
+          "nll": -0.147633,
+          "crps": 0.145545,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9617,
+          "mean_interval_width": 0.988115
+        },
+        "fleet": {
+          "mean_utilization": 0.8852730658254641,
+          "fraction_at_risk": 0.16033755274261605,
+          "mean_rul_days": 433.16614116127323
+        },
+        "n_samples": 1659
+      },
+      "timing": {
+        "windows": 1659,
+        "seconds": 2.5811,
+        "windows_per_second": 642.75,
+        "ms_per_window_mc": 1.556,
+        "mc_samples": 8
+      },
+      "calibration": {
+        "temperature": [
+          0.772424,
+          0.789408,
+          0.929236
+        ],
+        "conformal_quantile": [
+          1.294193,
+          1.639557,
+          1.47692
+        ],
+        "coverage": 0.9,
+        "n_calibration": 1659,
+        "ece_before": 0.11391289780537288,
+        "ece_after": 0.053300746613078646,
+        "nll_before": -1.0060560703277588,
+        "nll_after": -0.830329179763794
+      },
+      "verification": {
+        "n": 1659,
+        "verdict_histogram": {
+          "WARNING": 725,
+          "NORMAL": 541,
+          "CRITICAL": 393
+        },
+        "truth_histogram": {
+          "NORMAL": 1347,
+          "WARNING": 44,
+          "CRITICAL": 268
+        },
+        "recall_by_class": {
+          "NORMAL": 0.4016,
+          "WARNING": 0.4091,
+          "CRITICAL": 0.9291
+        },
+        "majority_class_rate": 0.8119,
+        "abstention_rate": 0.0,
+        "coverage": 1.0,
+        "accuracy_on_decided": 0.487,
+        "false_critical_rate": 0.0868,
+        "missed_critical_rate": 0.0115,
+        "use_twin": true
+      }
+    },
+    "windfusion-research": {
+      "model": "windfusion-research",
+      "parameters": 467211,
+      "train_seconds": 137.09,
+      "epochs_run": 11,
+      "best_val_total": -0.835893,
+      "metrics": {
+        "regression": {
+          "failure_probability_30d": {
+            "mae": 0.12484102391004794,
+            "rmse": 0.22635783389621542,
+            "r2": 0.6375244966002241
+          },
+          "health_index": {
+            "mae": 0.09842053858081644,
+            "rmse": 0.13057932659927843,
+            "r2": 0.8672784858524755
+          },
+          "rul_days": {
+            "mae": 0.27143725526027634,
+            "rmse": 0.42595709752092736,
+            "r2": 0.7599764758755997,
+            "mae_days": 99.07459817000087,
+            "rmse_days": 155.4743405951385
+          }
+        },
+        "classification": {
+          "auroc": 0.9766813241200769,
+          "accuracy": 0.3845690174804099,
+          "precision": 0.23405851462865718,
+          "recall": 1.0,
+          "f1": 0.37933130699088147,
+          "false_alarm_rate": 0.7579806978470676,
+          "n_positive": 312,
+          "threshold": 0.5
+        },
+        "early_warning": {
+          "accuracy": 0.8673899939722725,
+          "precision": 0.7129629629629629,
+          "recall": 0.4935897435897436,
+          "f1": 0.5833333333333334,
+          "false_alarm_rate": 0.04602821083890126,
+          "auroc": 0.900583918679687,
+          "mean_lead_time_days": 3.629891047372888,
+          "warning_horizon_days": 30.0,
+          "n_at_risk": 312
+        },
+        "calibration": {
+          "ece": 0.12166,
+          "nll": -0.196921,
+          "crps": 0.136924,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9665,
+          "mean_interval_width": 0.968173
+        },
+        "fleet": {
+          "mean_utilization": 0.8398927568653816,
+          "fraction_at_risk": 0.20192887281494876,
+          "mean_rul_days": 438.32366859711004
+        },
+        "n_samples": 1659
+      },
+      "timing": {
+        "windows": 1659,
+        "seconds": 7.8128,
+        "windows_per_second": 212.34,
+        "ms_per_window_mc": 4.709,
+        "mc_samples": 8
+      },
+      "calibration": {
+        "temperature": [
+          0.913765,
+          0.952837,
+          1.15333
+        ],
+        "conformal_quantile": [
+          1.110023,
+          1.554925,
+          1.222427
+        ],
+        "coverage": 0.9,
+        "n_calibration": 1659,
+        "ece_before": 0.1063894091380967,
+        "ece_after": 0.10839863700999154,
+        "nll_before": -1.1333250999450684,
+        "nll_after": -1.0899561643600464
+      },
+      "verification": {
+        "n": 1659,
+        "verdict_histogram": {
+          "NORMAL": 333,
+          "WARNING": 879,
+          "CRITICAL": 447
+        },
+        "truth_histogram": {
+          "NORMAL": 1347,
+          "WARNING": 44,
+          "CRITICAL": 268
+        },
+        "recall_by_class": {
+          "NORMAL": 0.2472,
+          "WARNING": 0.1136,
+          "CRITICAL": 0.9925
+        },
+        "majority_class_rate": 0.8119,
+        "abstention_rate": 0.0,
+        "coverage": 1.0,
+        "accuracy_on_decided": 0.3641,
+        "false_critical_rate": 0.1091,
+        "missed_critical_rate": 0.0012,
+        "use_twin": true
+      }
+    },
+    "aetheris-wind": {
+      "model": "aetheris-wind",
+      "parameters": 87643,
+      "train_seconds": 67.04,
+      "epochs_run": 10,
+      "best_val_total": -0.551664,
+      "metrics": {
+        "regression": {
+          "failure_probability_30d": {
+            "mae": 0.12469823509170111,
+            "rmse": 0.2160987363985041,
+            "r2": 0.66963650056086
+          },
+          "health_index": {
+            "mae": 0.09394307649229003,
+            "rmse": 0.12119202991932426,
+            "r2": 0.8856751611036863
+          },
+          "rul_days": {
+            "mae": 0.3021614002126323,
+            "rmse": 0.44084237223232786,
+            "r2": 0.7429078884547657,
+            "mae_days": 110.2889110776108,
+            "rmse_days": 160.90746586479966
+          }
+        },
+        "classification": {
+          "auroc": 0.9793701102164354,
+          "accuracy": 0.29053646775165765,
+          "precision": 0.20953660174613833,
+          "recall": 1.0,
+          "f1": 0.34647418101054966,
+          "false_alarm_rate": 0.8737936154417223,
+          "n_positive": 312,
+          "threshold": 0.5
+        },
+        "early_warning": {
+          "accuracy": 0.8468957203134418,
+          "precision": 0.881578947368421,
+          "recall": 0.21474358974358973,
+          "f1": 0.34536082474226804,
+          "false_alarm_rate": 0.0066815144766146995,
+          "auroc": 0.9184012906173262,
+          "mean_lead_time_days": 2.0056288807267157,
+          "warning_horizon_days": 30.0,
+          "n_at_risk": 312
+        },
+        "calibration": {
+          "ece": 0.141986,
+          "nll": -0.092153,
+          "crps": 0.146888,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9738,
+          "mean_interval_width": 1.09831
+        },
+        "fleet": {
+          "mean_utilization": 0.9361805263192398,
+          "fraction_at_risk": 0.09403254972875226,
+          "mean_rul_days": 478.1602009871934
+        },
+        "n_samples": 1659
+      },
+      "timing": {
+        "windows": 1659,
+        "seconds": 3.1484,
+        "windows_per_second": 526.94,
+        "ms_per_window_mc": 1.898,
+        "mc_samples": 8
+      },
+      "calibration": {
+        "temperature": [
+          0.951674,
+          0.859181,
+          1.197642
+        ],
+        "conformal_quantile": [
+          1.202801,
+          1.575601,
+          1.411945
+        ],
+        "coverage": 0.9,
+        "n_calibration": 1659,
+        "ece_before": 0.07895208646853764,
+        "ece_after": 0.07486661689149009,
+        "nll_before": -0.8205252289772034,
+        "nll_after": -0.8038377165794373
+      },
+      "verification": {
+        "n": 1659,
+        "verdict_histogram": {
+          "WARNING": 1115,
+          "NORMAL": 206,
+          "CRITICAL": 338
+        },
+        "truth_histogram": {
+          "NORMAL": 1347,
+          "WARNING": 44,
+          "CRITICAL": 268
+        },
+        "recall_by_class": {
+          "NORMAL": 0.1529,
+          "WARNING": 0.5,
+          "CRITICAL": 0.9254
+        },
+        "majority_class_rate": 0.8119,
+        "abstention_rate": 0.0,
+        "coverage": 1.0,
+        "accuracy_on_decided": 0.2869,
+        "false_critical_rate": 0.0542,
+        "missed_critical_rate": 0.0121,
+        "use_twin": true
+      }
+    },
+    "ra-wind": {
+      "model": "ra-wind",
+      "parameters": 53130,
+      "train_seconds": 66.23,
+      "epochs_run": 11,
+      "best_val_total": -0.873891,
+      "metrics": {
+        "regression": {
+          "failure_probability_30d": {
+            "mae": 0.14852878796003555,
+            "rmse": 0.28953749372706944,
+            "r2": 0.4069419237308284
+          },
+          "health_index": {
+            "mae": 0.0878120510233482,
+            "rmse": 0.12013551300841573,
+            "r2": 0.8876597740610447
+          },
+          "rul_days": {
+            "mae": 0.3018992859129881,
+            "rmse": 0.45768161313286754,
+            "r2": 0.7228920275436508,
+            "mae_days": 110.19323935824065,
+            "rmse_days": 167.05378879349666
+          }
+        },
+        "classification": {
+          "auroc": 0.9775902765880494,
+          "accuracy": 0.5117540687160941,
+          "precision": 0.27807486631016043,
+          "recall": 1.0,
+          "f1": 0.4351464435146444,
+          "false_alarm_rate": 0.6013363028953229,
+          "n_positive": 312,
+          "threshold": 0.5
+        },
+        "early_warning": {
+          "accuracy": 0.8233875828812538,
+          "precision": 0.6938775510204082,
+          "recall": 0.10897435897435898,
+          "f1": 0.18836565096952912,
+          "false_alarm_rate": 0.011135857461024499,
+          "auroc": 0.8790474558848723,
+          "mean_lead_time_days": 4.306082168717266,
+          "warning_horizon_days": 30.0,
+          "n_at_risk": 312
+        },
+        "calibration": {
+          "ece": 0.107762,
+          "nll": -0.247118,
+          "crps": 0.141069,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9641,
+          "mean_interval_width": 0.953393
+        },
+        "fleet": {
+          "mean_utilization": 0.9463881622082492,
+          "fraction_at_risk": 0.09825195901145269,
+          "mean_rul_days": 481.94469768631865
+        },
+        "n_samples": 1659
+      },
+      "timing": {
+        "windows": 1659,
+        "seconds": 2.8342,
+        "windows_per_second": 585.35,
+        "ms_per_window_mc": 1.708,
+        "mc_samples": 8
+      },
+      "calibration": {
+        "temperature": [
+          1.308447,
+          0.846435,
+          1.103222
+        ],
+        "conformal_quantile": [
+          1.157237,
+          1.43157,
+          1.295546
+        ],
+        "coverage": 0.9,
+        "n_calibration": 1659,
+        "ece_before": 0.1076619169778294,
+        "ece_after": 0.12116848842965232,
+        "nll_before": -1.187143325805664,
+        "nll_after": -1.2490416765213013
+      },
+      "verification": {
+        "n": 1659,
+        "verdict_histogram": {
+          "WARNING": 864,
+          "NORMAL": 568,
+          "CRITICAL": 227
+        },
+        "truth_histogram": {
+          "NORMAL": 1347,
+          "WARNING": 44,
+          "CRITICAL": 268
+        },
+        "recall_by_class": {
+          "NORMAL": 0.4209,
+          "WARNING": 0.8409,
+          "CRITICAL": 0.7127
+        },
+        "majority_class_rate": 0.8119,
+        "abstention_rate": 0.0,
+        "coverage": 1.0,
+        "accuracy_on_decided": 0.4792,
+        "false_critical_rate": 0.0217,
+        "missed_critical_rate": 0.0464,
+        "use_twin": true
+      }
+    },
+    "qinglong-wind": {
+      "model": "qinglong-wind",
+      "parameters": 91613,
+      "train_seconds": 90.84,
+      "epochs_run": 13,
+      "best_val_total": -0.926866,
+      "metrics": {
+        "regression": {
+          "failure_probability_30d": {
+            "mae": 0.15874154913297153,
+            "rmse": 0.32229813491459647,
+            "r2": 0.26514240414115364
+          },
+          "health_index": {
+            "mae": 0.07469924147262712,
+            "rmse": 0.09754126974390058,
+            "r2": 0.9259424589612171
+          },
+          "rul_days": {
+            "mae": 0.3377408825107073,
+            "rmse": 0.4993545068884718,
+            "r2": 0.6701321137069731,
+            "mae_days": 123.27542211640815,
+            "rmse_days": 182.2643950142922
+          }
+        },
+        "classification": {
+          "auroc": 0.9799150058058744,
+          "accuracy": 0.2585895117540687,
+          "precision": 0.20233463035019456,
+          "recall": 1.0,
+          "f1": 0.3365695792880259,
+          "false_alarm_rate": 0.9131403118040089,
+          "n_positive": 312,
+          "threshold": 0.5
+        },
+        "early_warning": {
+          "accuracy": 0.814948764315853,
+          "precision": 1.0,
+          "recall": 0.016025641025641024,
+          "f1": 0.031545741324921134,
+          "false_alarm_rate": 0.0,
+          "auroc": 0.9034178516361144,
+          "mean_lead_time_days": 1.644082112237811,
+          "warning_horizon_days": 30.0,
+          "n_at_risk": 312
+        },
+        "calibration": {
+          "ece": 0.138269,
+          "nll": -0.237371,
+          "crps": 0.146174,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9732,
+          "mean_interval_width": 1.037718
+        },
+        "fleet": {
+          "mean_utilization": 0.9890985790855434,
+          "fraction_at_risk": 0.028330319469559977,
+          "mean_rul_days": 528.1432533786744
+        },
+        "n_samples": 1659
+      },
+      "timing": {
+        "windows": 1659,
+        "seconds": 3.1971,
+        "windows_per_second": 518.9,
+        "ms_per_window_mc": 1.927,
+        "mc_samples": 8
+      },
+      "calibration": {
+        "temperature": [
+          1.232817,
+          0.924385,
+          1.162512
+        ],
+        "conformal_quantile": [
+          1.274782,
+          1.556506,
+          1.240745
+        ],
+        "coverage": 0.9,
+        "n_calibration": 1659,
+        "ece_before": 0.07361642767985661,
+        "ece_after": 0.09917845908138487,
+        "nll_before": -1.231711745262146,
+        "nll_after": -1.3263987302780151
+      },
+      "verification": {
+        "n": 1659,
+        "verdict_histogram": {
+          "WARNING": 1194,
+          "NORMAL": 147,
+          "CRITICAL": 318
+        },
+        "truth_histogram": {
+          "NORMAL": 1347,
+          "WARNING": 44,
+          "CRITICAL": 268
+        },
+        "recall_by_class": {
+          "NORMAL": 0.1091,
+          "WARNING": 0.5455,
+          "CRITICAL": 0.9291
+        },
+        "majority_class_rate": 0.8119,
+        "abstention_rate": 0.0,
+        "coverage": 1.0,
+        "accuracy_on_decided": 0.2532,
+        "false_critical_rate": 0.0416,
+        "missed_critical_rate": 0.0115,
+        "use_twin": true
+      }
+    },
+    "vayu-wind": {
+      "model": "vayu-wind",
+      "parameters": 56444,
+      "train_seconds": 96.0,
+      "epochs_run": 15,
+      "best_val_total": -1.090772,
+      "metrics": {
+        "regression": {
+          "failure_probability_30d": {
+            "mae": 0.18571285915634275,
+            "rmse": 0.4170198462975355,
+            "r2": -0.2302717472792002
+          },
+          "health_index": {
+            "mae": 0.08095040075894111,
+            "rmse": 0.12489020067020888,
+            "r2": 0.8785914687303472
+          },
+          "rul_days": {
+            "mae": 0.26850908314490624,
+            "rmse": 0.4173071945300827,
+            "r2": 0.7696258031645969,
+            "mae_days": 98.00581534789077,
+            "rmse_days": 152.31712600348018
+          }
+        },
+        "classification": {
+          "auroc": 0.9791059905202444,
+          "accuracy": 0.6962025316455697,
+          "precision": 0.38235294117647056,
+          "recall": 1.0,
+          "f1": 0.5531914893617021,
+          "false_alarm_rate": 0.3741648106904232,
+          "n_positive": 312,
+          "threshold": 0.5
+        },
+        "early_warning": {
+          "accuracy": 0.8505123568414708,
+          "precision": 0.9444444444444444,
+          "recall": 0.21794871794871795,
+          "f1": 0.35416666666666674,
+          "false_alarm_rate": 0.002969561989606533,
+          "auroc": 0.932720861172977,
+          "mean_lead_time_days": 2.188412746224511,
+          "warning_horizon_days": 30.0,
+          "n_at_risk": 312
+        },
+        "calibration": {
+          "ece": 0.150894,
+          "nll": -0.312527,
+          "crps": 0.128749,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9726,
+          "mean_interval_width": 0.949552
+        },
+        "fleet": {
+          "mean_utilization": 0.9263638206971739,
+          "fraction_at_risk": 0.12055455093429777,
+          "mean_rul_days": 487.6031538292641
+        },
+        "n_samples": 1659
+      },
+      "timing": {
+        "windows": 1659,
+        "seconds": 3.122,
+        "windows_per_second": 531.38,
+        "ms_per_window_mc": 1.882,
+        "mc_samples": 8
+      },
+      "calibration": {
+        "temperature": [
+          0.83488,
+          0.786417,
+          1.121437
+        ],
+        "conformal_quantile": [
+          1.493731,
+          1.483577,
+          1.317406
+        ],
+        "coverage": 0.9,
+        "n_calibration": 1659,
+        "ece_before": 0.17436876810259289,
+        "ece_after": 0.15077134552929136,
+        "nll_before": -1.497430443763733,
+        "nll_after": -1.4004040956497192
+      },
+      "verification": {
+        "n": 1659,
+        "verdict_histogram": {
+          "NORMAL": 836,
+          "WARNING": 512,
+          "CRITICAL": 311
+        },
+        "truth_histogram": {
+          "NORMAL": 1347,
+          "WARNING": 44,
+          "CRITICAL": 268
+        },
+        "recall_by_class": {
+          "NORMAL": 0.6206,
+          "WARNING": 0.6136,
+          "CRITICAL": 0.8843
+        },
+        "majority_class_rate": 0.8119,
+        "abstention_rate": 0.0,
+        "coverage": 1.0,
+        "accuracy_on_decided": 0.6631,
+        "false_critical_rate": 0.0446,
+        "missed_critical_rate": 0.0187,
+        "use_twin": true
+      }
+    },
+    "odin-wind": {
+      "model": "odin-wind",
+      "parameters": 71006,
+      "train_seconds": 69.47,
+      "epochs_run": 11,
+      "best_val_total": -0.954682,
+      "metrics": {
+        "regression": {
+          "failure_probability_30d": {
+            "mae": 0.13929064913232783,
+            "rmse": 0.25237074843772694,
+            "r2": 0.5494265116842515
+          },
+          "health_index": {
+            "mae": 0.07680865978365152,
+            "rmse": 0.10410661795559442,
+            "r2": 0.9156375556657871
+          },
+          "rul_days": {
+            "mae": 0.2647160701207382,
+            "rmse": 0.40660418542897536,
+            "r2": 0.7812914409053724,
+            "mae_days": 96.62136559406945,
+            "rmse_days": 148.410527681576
+          }
+        },
+        "classification": {
+          "auroc": 0.9719343079588069,
+          "accuracy": 0.3688969258589512,
+          "precision": 0.22958057395143489,
+          "recall": 1.0,
+          "f1": 0.3734290843806104,
+          "false_alarm_rate": 0.77728285077951,
+          "n_positive": 312,
+          "threshold": 0.5
+        },
+        "early_warning": {
+          "accuracy": 0.8462929475587704,
+          "precision": 0.7938144329896907,
+          "recall": 0.2467948717948718,
+          "f1": 0.3765281173594133,
+          "false_alarm_rate": 0.014847809948032665,
+          "auroc": 0.9224225724782518,
+          "mean_lead_time_days": 2.084856323909934,
+          "warning_horizon_days": 30.0,
+          "n_at_risk": 312
+        },
+        "calibration": {
+          "ece": 0.161978,
+          "nll": -0.276978,
+          "crps": 0.127116,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9762,
+          "mean_interval_width": 0.96159
+        },
+        "fleet": {
+          "mean_utilization": 0.9080022466830612,
+          "fraction_at_risk": 0.1398432790837854,
+          "mean_rul_days": 457.67830684401446
+        },
+        "n_samples": 1659
+      },
+      "timing": {
+        "windows": 1659,
+        "seconds": 2.967,
+        "windows_per_second": 559.14,
+        "ms_per_window_mc": 1.788,
+        "mc_samples": 8
+      },
+      "calibration": {
+        "temperature": [
+          0.957484,
+          0.801687,
+          1.171095
+        ],
+        "conformal_quantile": [
+          1.039662,
+          1.624871,
+          1.262424
+        ],
+        "coverage": 0.9,
+        "n_calibration": 1659,
+        "ece_before": 0.12081130594015121,
+        "ece_after": 0.10902374568912718,
+        "nll_before": -1.2233757972717285,
+        "nll_after": -1.2235379219055176
+      },
+      "verification": {
+        "n": 1659,
+        "verdict_histogram": {
+          "WARNING": 935,
+          "NORMAL": 333,
+          "CRITICAL": 391
+        },
+        "truth_histogram": {
+          "NORMAL": 1347,
+          "WARNING": 44,
+          "CRITICAL": 268
+        },
+        "recall_by_class": {
+          "NORMAL": 0.2472,
+          "WARNING": 0.3409,
+          "CRITICAL": 0.9627
+        },
+        "majority_class_rate": 0.8119,
+        "abstention_rate": 0.0,
+        "coverage": 1.0,
+        "accuracy_on_decided": 0.3653,
+        "false_critical_rate": 0.0802,
+        "missed_critical_rate": 0.006,
+        "use_twin": true
+      }
+    },
+    "aeolus-wind": {
+      "model": "aeolus-wind",
+      "parameters": 92518,
+      "train_seconds": 74.88,
+      "epochs_run": 11,
+      "best_val_total": -0.66858,
+      "metrics": {
+        "regression": {
+          "failure_probability_30d": {
+            "mae": 0.14227112158709918,
+            "rmse": 0.245884921008778,
+            "r2": 0.5692146863754359
+          },
+          "health_index": {
+            "mae": 0.07197420412663835,
+            "rmse": 0.09773511338683105,
+            "r2": 0.9253473623428669
+          },
+          "rul_days": {
+            "mae": 0.2749556503290357,
+            "rmse": 0.4330681896278117,
+            "r2": 0.7511791236905379,
+            "mae_days": 100.35881237009802,
+            "rmse_days": 158.06988921415126
+          }
+        },
+        "classification": {
+          "auroc": 0.9716633812615956,
+          "accuracy": 0.19309927360774817,
+          "precision": 0.18769043266301036,
+          "recall": 1.0,
+          "f1": 0.3160595177013853,
+          "false_alarm_rate": 0.9918154761904762,
+          "n_positive": 308,
+          "threshold": 0.5
+        },
+        "early_warning": {
+          "accuracy": 0.8529055690072639,
+          "precision": 0.8095238095238095,
+          "recall": 0.275974025974026,
+          "f1": 0.4116222760290557,
+          "false_alarm_rate": 0.01488095238095238,
+          "auroc": 0.9252884392393321,
+          "mean_lead_time_days": 1.944291178335655,
+          "warning_horizon_days": 30.0,
+          "n_at_risk": 308
+        },
+        "calibration": {
+          "ece": 0.162261,
+          "nll": -0.299831,
+          "crps": 0.129635,
+          "coverage": 0.9,
+          "empirical_coverage": 0.967,
+          "mean_interval_width": 0.948157
+        },
+        "fleet": {
+          "mean_utilization": 0.9136755388158426,
+          "fraction_at_risk": 0.1198547215496368,
+          "mean_rul_days": 490.43346468777537
+        },
+        "n_samples": 1652
+      },
+      "timing": {
+        "windows": 1652,
+        "seconds": 3.0609,
+        "windows_per_second": 539.7,
+        "ms_per_window_mc": 1.853,
+        "mc_samples": 8
+      },
+      "calibration": {
+        "temperature": [
+          1.166781,
+          0.771282,
+          1.200114
+        ],
+        "conformal_quantile": [
+          1.288976,
+          1.588571,
+          1.273162
+        ],
+        "coverage": 0.9,
+        "n_calibration": 1652,
+        "ece_before": 0.031086909274260204,
+        "ece_after": 0.043081345657507576,
+        "nll_before": -1.01694917678833,
+        "nll_after": -1.1315464973449707
+      },
+      "verification": {
+        "n": 1652,
+        "verdict_histogram": {
+          "WARNING": 1255,
+          "NORMAL": 25,
+          "CRITICAL": 372
+        },
+        "truth_histogram": {
+          "NORMAL": 1344,
+          "WARNING": 44,
+          "CRITICAL": 264
+        },
+        "recall_by_class": {
+          "NORMAL": 0.0186,
+          "WARNING": 0.3636,
+          "CRITICAL": 0.9773
+        },
+        "majority_class_rate": 0.8136,
+        "abstention_rate": 0.0,
+        "coverage": 1.0,
+        "accuracy_on_decided": 0.181,
+        "false_critical_rate": 0.069,
+        "missed_critical_rate": 0.0036,
+        "use_twin": true
+      }
+    }
+  },
+  "distillation": {
+    "teacher": {
+      "model": "windfusion-research",
+      "parameters": 467211,
+      "train_seconds": 135.24,
+      "epochs_run": 11,
+      "best_val_total": -0.835893,
+      "metrics": {
+        "regression": {
+          "failure_probability_30d": {
+            "mae": 0.12484102391004794,
+            "rmse": 0.22635783389621542,
+            "r2": 0.6375244966002241
+          },
+          "health_index": {
+            "mae": 0.09842053858081644,
+            "rmse": 0.13057932659927843,
+            "r2": 0.8672784858524755
+          },
+          "rul_days": {
+            "mae": 0.27143725526027634,
+            "rmse": 0.42595709752092736,
+            "r2": 0.7599764758755997,
+            "mae_days": 99.07459817000087,
+            "rmse_days": 155.4743405951385
+          }
+        },
+        "classification": {
+          "auroc": 0.9766813241200769,
+          "accuracy": 0.3845690174804099,
+          "precision": 0.23405851462865718,
+          "recall": 1.0,
+          "f1": 0.37933130699088147,
+          "false_alarm_rate": 0.7579806978470676,
+          "n_positive": 312,
+          "threshold": 0.5
+        },
+        "early_warning": {
+          "accuracy": 0.8673899939722725,
+          "precision": 0.7129629629629629,
+          "recall": 0.4935897435897436,
+          "f1": 0.5833333333333334,
+          "false_alarm_rate": 0.04602821083890126,
+          "auroc": 0.900583918679687,
+          "mean_lead_time_days": 3.629891047372888,
+          "warning_horizon_days": 30.0,
+          "n_at_risk": 312
+        },
+        "calibration": {
+          "ece": 0.12166,
+          "nll": -0.196921,
+          "crps": 0.136924,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9665,
+          "mean_interval_width": 0.968173
+        },
+        "fleet": {
+          "mean_utilization": 0.8398927568653816,
+          "fraction_at_risk": 0.20192887281494876,
+          "mean_rul_days": 438.32366859711004
+        },
+        "n_samples": 1659
+      },
+      "timing": {
+        "windows": 1659,
+        "seconds": 7.6249,
+        "windows_per_second": 217.58,
+        "ms_per_window_mc": 4.596,
+        "mc_samples": 8
+      },
+      "calibration": {
+        "temperature": [
+          0.913765,
+          0.952837,
+          1.15333
+        ],
+        "conformal_quantile": [
+          1.110023,
+          1.554925,
+          1.222427
+        ],
+        "coverage": 0.9,
+        "n_calibration": 1659,
+        "ece_before": 0.1063894091380967,
+        "ece_after": 0.10839863700999154,
+        "nll_before": -1.1333250999450684,
+        "nll_after": -1.0899561643600464
+      },
+      "verification": {
+        "n": 1659,
+        "verdict_histogram": {
+          "NORMAL": 333,
+          "WARNING": 879,
+          "CRITICAL": 447
+        },
+        "truth_histogram": {
+          "NORMAL": 1347,
+          "WARNING": 44,
+          "CRITICAL": 268
+        },
+        "recall_by_class": {
+          "NORMAL": 0.2472,
+          "WARNING": 0.1136,
+          "CRITICAL": 0.9925
+        },
+        "majority_class_rate": 0.8119,
+        "abstention_rate": 0.0,
+        "coverage": 1.0,
+        "accuracy_on_decided": 0.3641,
+        "false_critical_rate": 0.1091,
+        "missed_critical_rate": 0.0012,
+        "use_twin": true
+      }
+    },
+    "student_from_scratch": {
+      "model": "windfusion-edge",
+      "parameters": 9714,
+      "train_seconds": 52.12,
+      "epochs_run": 11,
+      "best_val_total": -0.479709,
+      "metrics": {
+        "regression": {
+          "failure_probability_30d": {
+            "mae": 0.1544797747159031,
+            "rmse": 0.2822529573188463,
+            "r2": 0.43640827891873235
+          },
+          "health_index": {
+            "mae": 0.10327873917997125,
+            "rmse": 0.14140720804090087,
+            "r2": 0.8443548566969677
+          },
+          "rul_days": {
+            "mae": 0.3066281712859742,
+            "rmse": 0.4516467829995539,
+            "r2": 0.7301515473295375,
+            "mae_days": 111.91928251938059,
+            "rmse_days": 164.8510757948372
+          }
+        },
+        "classification": {
+          "auroc": 0.956103782384406,
+          "accuracy": 0.4804098854731766,
+          "precision": 0.2645547945205479,
+          "recall": 0.9903846153846154,
+          "f1": 0.41756756756756747,
+          "false_alarm_rate": 0.637713437268003,
+          "n_positive": 312,
+          "threshold": 0.5
+        },
+        "early_warning": {
+          "accuracy": 0.8390596745027125,
+          "precision": 0.6618705035971223,
+          "recall": 0.2948717948717949,
+          "f1": 0.40798226164079826,
+          "false_alarm_rate": 0.034892353377876766,
+          "auroc": 0.8933551291569108,
+          "mean_lead_time_days": 4.251746508019531,
+          "warning_horizon_days": 30.0,
+          "n_at_risk": 312
+        },
+        "calibration": {
+          "ece": 0.095473,
+          "nll": -0.062342,
+          "crps": 0.152551,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9385,
+          "mean_interval_width": 1.00722
+        },
+        "fleet": {
+          "mean_utilization": 0.8922255590357703,
+          "fraction_at_risk": 0.14647377938517178,
+          "mean_rul_days": 440.5993926999051
+        },
+        "n_samples": 1659
+      },
+      "timing": {
+        "windows": 1659,
+        "seconds": 1.6601,
+        "windows_per_second": 999.33,
+        "ms_per_window_mc": 1.001,
+        "mc_samples": 8
+      },
+      "calibration": {
+        "temperature": [
+          1.276777,
+          0.698853,
+          0.898895
+        ],
+        "conformal_quantile": [
+          1.109247,
+          1.799815,
+          1.621316
+        ],
+        "coverage": 0.9,
+        "n_calibration": 1659,
+        "ece_before": 0.1090683928794331,
+        "ece_after": 0.08040318803654777,
+        "nll_before": -0.7283104062080383,
+        "nll_after": -0.8210247755050659
+      },
+      "verification": {
+        "n": 1659,
+        "verdict_histogram": {
+          "NORMAL": 523,
+          "WARNING": 735,
+          "CRITICAL": 401
+        },
+        "truth_histogram": {
+          "NORMAL": 1347,
+          "WARNING": 44,
+          "CRITICAL": 268
+        },
+        "recall_by_class": {
+          "NORMAL": 0.3875,
+          "WARNING": 0.2727,
+          "CRITICAL": 0.9366
+        },
+        "majority_class_rate": 0.8119,
+        "abstention_rate": 0.0,
+        "coverage": 1.0,
+        "accuracy_on_decided": 0.4732,
+        "false_critical_rate": 0.0904,
+        "missed_critical_rate": 0.0102,
+        "use_twin": true
+      }
+    },
+    "student_distilled": {
+      "model": "windfusion-edge+distilled",
+      "parameters": 9714,
+      "epochs_run": 15,
+      "best_val_total": -0.734501,
+      "metrics": {
+        "regression": {
+          "failure_probability_30d": {
+            "mae": 0.1772345813384546,
+            "rmse": 0.38145483791651735,
+            "r2": -0.02937557151640502
+          },
+          "health_index": {
+            "mae": 0.08888809355646664,
+            "rmse": 0.1184806268272743,
+            "r2": 0.8907334666051409
+          },
+          "rul_days": {
+            "mae": 0.259714799862332,
+            "rmse": 0.41368356394765216,
+            "r2": 0.7736092791201719,
+            "mae_days": 94.79590194975117,
+            "rmse_days": 150.99450084089304
+          }
+        },
+        "classification": {
+          "auroc": 0.9446157653284603,
+          "accuracy": 0.3405666063893912,
+          "precision": 0.22190611664295876,
+          "recall": 1.0,
+          "f1": 0.36321303841676367,
+          "false_alarm_rate": 0.8121752041573868,
+          "n_positive": 312,
+          "threshold": 0.5
+        },
+        "early_warning": {
+          "accuracy": 0.8649789029535865,
+          "precision": 0.8188405797101449,
+          "recall": 0.36217948717948717,
+          "f1": 0.5022222222222222,
+          "false_alarm_rate": 0.01855976243504083,
+          "auroc": 0.9076865969961738,
+          "mean_lead_time_days": 4.196490057835776,
+          "warning_horizon_days": 30.0,
+          "n_at_risk": 312
+        },
+        "calibration": {
+          "ece": 0.125377,
+          "nll": -0.297354,
+          "crps": 0.127654,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9596,
+          "mean_interval_width": 0.890161
+        },
+        "fleet": {
+          "mean_utilization": 0.8905434212164783,
+          "fraction_at_risk": 0.1458710066305003,
+          "mean_rul_days": 465.3705784300232
+        },
+        "n_samples": 1659
+      },
+      "calibration": {
+        "temperature": [
+          1.101898,
+          0.852771,
+          1.075745
+        ],
+        "conformal_quantile": [
+          1.111833,
+          1.703781,
+          1.210631
+        ],
+        "coverage": 0.9,
+        "n_calibration": 1659,
+        "ece_before": 0.1536512631509039,
+        "ece_after": 0.14798071566555235,
+        "nll_before": -1.0675700902938843,
+        "nll_after": -1.1368333101272583
+      }
+    },
+    "kd_terms": {
+      "kd_total": 0.335267,
+      "kd_prediction": 0.018606,
+      "kd_uncertainty": 0.394465,
+      "kd_feature": 0.017153,
+      "kd_router": 4.645218
+    }
+  },
+  "fleet_learning": {
+    "protocol": "held-out site: turbines never seen during training",
+    "zero_shot_rul_mae_days": 111.919,
+    "federated_rul_mae_days": 112.181,
+    "fewshot_rul_mae_days": 104.223,
+    "fewshot_windows": 32,
+    "federated_rounds": [
+      {
+        "round": 1,
+        "clients": 6,
+        "weights": [
+          218.149,
+          221.47,
+          217.7368,
+          222.9617,
+          225.5629,
+          229.7733
+        ],
+        "mean_client_loss": -1.219146
+      },
+      {
+        "round": 2,
+        "clients": 6,
+        "weights": [
+          217.5322,
+          225.5756,
+          221.6362,
+          224.2094,
+          225.0656,
+          224.3458
+        ],
+        "mean_client_loss": -1.326502
+      }
+    ],
+    "zero_shot_metrics": {
+      "regression": {
+        "failure_probability_30d": {
+          "mae": 0.1544797747159031,
+          "rmse": 0.2822529573188463,
+          "r2": 0.43640827891873235
+        },
+        "health_index": {
+          "mae": 0.10327873917997125,
+          "rmse": 0.14140720804090087,
+          "r2": 0.8443548566969677
+        },
+        "rul_days": {
+          "mae": 0.3066281712859742,
+          "rmse": 0.4516467829995539,
+          "r2": 0.7301515473295375,
+          "mae_days": 111.91928251938059,
+          "rmse_days": 164.8510757948372
+        }
+      },
+      "classification": {
+        "auroc": 0.956103782384406,
+        "accuracy": 0.4804098854731766,
+        "precision": 0.2645547945205479,
+        "recall": 0.9903846153846154,
+        "f1": 0.41756756756756747,
+        "false_alarm_rate": 0.637713437268003,
+        "n_positive": 312,
+        "threshold": 0.5
+      },
+      "early_warning": {
+        "accuracy": 0.8390596745027125,
+        "precision": 0.6618705035971223,
+        "recall": 0.2948717948717949,
+        "f1": 0.40798226164079826,
+        "false_alarm_rate": 0.034892353377876766,
+        "auroc": 0.8933551291569108,
+        "mean_lead_time_days": 4.251746508019531,
+        "warning_horizon_days": 30.0,
+        "n_at_risk": 312
+      },
+      "calibration": {
+        "ece": 0.095473,
+        "nll": -0.062342,
+        "crps": 0.152551,
+        "coverage": 0.9,
+        "empirical_coverage": 0.9385,
+        "mean_interval_width": 1.00722
+      },
+      "fleet": {
+        "mean_utilization": 0.8922255590357703,
+        "fraction_at_risk": 0.14647377938517178,
+        "mean_rul_days": 440.5993926999051
+      },
+      "n_samples": 1659
+    },
+    "fewshot_metrics": {
+      "regression": {
+        "failure_probability_30d": {
+          "mae": 0.16028464209768653,
+          "rmse": 0.29786702271816634,
+          "r2": 0.37232843866904486
+        },
+        "health_index": {
+          "mae": 0.09761930812816032,
+          "rmse": 0.1347333129665441,
+          "r2": 0.8586999042702923
+        },
+        "rul_days": {
+          "mae": 0.2855425094984244,
+          "rmse": 0.4404121114238648,
+          "r2": 0.7434094857873547,
+          "mae_days": 104.2230159669249,
+          "rmse_days": 160.75042066971065
+        }
+      },
+      "classification": {
+        "auroc": 0.9632159785277825,
+        "accuracy": 0.7329716696805304,
+        "precision": 0.41231593038821956,
+        "recall": 0.9871794871794872,
+        "f1": 0.5816808309726157,
+        "false_alarm_rate": 0.325909428359317,
+        "n_positive": 312,
+        "threshold": 0.5
+      },
+      "early_warning": {
+        "accuracy": 0.8921036769138035,
+        "precision": 0.8757062146892656,
+        "recall": 0.4967948717948718,
+        "f1": 0.6339468302658487,
+        "false_alarm_rate": 0.016332590942835932,
+        "auroc": 0.9548640854320142,
+        "mean_lead_time_days": 2.3950384638249695,
+        "warning_horizon_days": 30.0,
+        "n_at_risk": 312
+      },
+      "calibration": {
+        "ece": 0.042475,
+        "nll": 0.035808,
+        "crps": 0.146335,
+        "coverage": 0.9,
+        "empirical_coverage": 0.8843,
+        "mean_interval_width": 0.732393
+      },
+      "fleet": {
+        "mean_utilization": 0.8719124629981797,
+        "fraction_at_risk": 0.162748643761302,
+        "mean_rul_days": 471.07714545258335
+      },
+      "n_samples": 1659
+    }
+  },
+  "telemetry": {
+    "windows": 256,
+    "modes": {
+      "raw": 151,
+      "compressed": 105
+    },
+    "raw_bytes": 131072,
+    "encoded_bytes": 82352,
+    "bandwidth_reduction": 0.3717,
+    "mean_mae": 0.002224,
+    "mean_max_abs": 0.004642
+  },
+  "config_snapshot": {
+    "seed": 7,
+    "epochs": 15,
+    "training": {
+      "epochs": 15,
+      "batch_size": 64,
+      "learning_rate": 0.001,
+      "weight_decay": 0.0001,
+      "grad_clip": 5.0,
+      "warmup_fraction": 0.05,
+      "patience": 8,
+      "min_delta": 0.0001,
+      "uncertainty_weight": 0.01,
+      "router_balance_weight": 0.01,
+      "target_weights": {
+        "failure_probability": 1.0,
+        "health_index": 1.0,
+        "rul_days": 1.0
+      },
+      "num_workers": 0
+    },
+    "data": {
+      "source": "synthetic",
+      "root": "data",
+      "fleet_version": "synthetic-v1",
+      "n_turbines": 36,
+      "seq_len": 1440,
+      "sample_interval_s": 600,
+      "window": 24,
+      "stride": 6,
+      "missing_rate": 0.01,
+      "horizon_days": 30.0,
+      "seed": 7,
+      "split": {
+        "train": 0.6,
+        "val": 0.2,
+        "test": 0.2
+      },
+      "checksum": null
+    },
+    "evaluation": {
+      "mc_samples": 8,
+      "warning_horizon_days": 30.0,
+      "epistemic_abstain": 0.45,
+      "physics_abstain": 0.35,
+      "min_data_completeness": 0.6,
+      "conformal_coverage": 0.9,
+      "conformal": true
+    }
+  },
+  "environment": {
+    "python": "3.11.2",
+    "torch": "2.13.0+cu130",
+    "platform": "Linux-6.1.158+-x86_64-with-glibc2.36",
+    "threads": 1,
+    "generated_at": "2026-08-29T21:16:32Z",
+    "total_seconds": 1332.82,
+    "rul_scale_days": 365.0
+  }
+}

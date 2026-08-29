@@ -1,9 +1,48 @@
+# Reproducible ablation matrix for WindFusion v0.2.
+# `python benchmarks/synthetic_benchmark.py --modes ...` covers the architecture axis;
+# this file documents the component axis. Cells are NOT MEASURED until a run fills them.
+
+defaults:
+  seed: 7
+  epochs: 15
+  fleet: synthetic-v1
+  turbines: 36
+  seq_len: 1440
+  data_stamp: SYNTHETIC
+
 experiments:
-  A: {name: pure_neural, physics: false, uncertainty: false, sparse_experts: false, digital_twin: false, telemetry: false, verification: false}
-  B: {name: neural_physics, physics: true, uncertainty: false, sparse_experts: false, digital_twin: false, telemetry: false, verification: false}
-  C: {name: neural_uncertainty, physics: false, uncertainty: true, sparse_experts: false, digital_twin: false, telemetry: false, verification: false}
-  D: {name: neural_sparse_experts, physics: false, uncertainty: false, sparse_experts: true, digital_twin: false, telemetry: false, verification: false}
-  E: {name: neural_digital_twin, physics: false, uncertainty: false, sparse_experts: false, digital_twin: true, telemetry: false, verification: false}
-  F: {name: full, physics: true, uncertainty: true, sparse_experts: true, digital_twin: true, telemetry: true, verification: true}
-  G: {name: full_without_telemetry, physics: true, uncertainty: true, sparse_experts: true, digital_twin: true, telemetry: false, verification: true}
-  H: {name: full_without_verification, physics: true, uncertainty: true, sparse_experts: true, digital_twin: true, telemetry: true, verification: false}
+  # ── component ablations (windfusion-lite trunk) ───────────────────────────
+  A: {name: pure_neural,          physics: false, uncertainty: false, sparse_experts: false, digital_twin: false, telemetry: false, verification: false}
+  B: {name: neural_physics,       physics: true,  uncertainty: false, sparse_experts: false, digital_twin: false, telemetry: false, verification: false}
+  C: {name: neural_uncertainty,   physics: false, uncertainty: true,  sparse_experts: false, digital_twin: false, telemetry: false, verification: false}
+  D: {name: neural_sparse_experts,physics: false, uncertainty: false, sparse_experts: true,  digital_twin: false, telemetry: false, verification: false}
+  E: {name: neural_digital_twin,  physics: false, uncertainty: false, sparse_experts: false, digital_twin: true,  telemetry: false, verification: false}
+  F: {name: full,                 physics: true,  uncertainty: true,  sparse_experts: true,  digital_twin: true,  telemetry: true,  verification: true}
+  G: {name: full_without_telemetry,    physics: true, uncertainty: true, sparse_experts: true, digital_twin: true, telemetry: false, verification: true}
+  H: {name: full_without_verification, physics: true, uncertainty: true, sparse_experts: true, digital_twin: true, telemetry: true,  verification: false}
+  I: {name: full_without_calibration,  physics: true, uncertainty: true, sparse_experts: true, digital_twin: true, telemetry: true,  verification: true, calibration: false}
+
+  # ── architecture axis (synthetic benchmark covers these) ──────────────────
+  J: {name: preset_vayu_top1,      model: vayu-wind,      note: longest receptive field, top-1 routing}
+  K: {name: preset_ra_thermal,     model: ra-wind,        note: thermal expert depth + ambient router bias}
+  L: {name: preset_odin_monotone,  model: odin-wind,      note: ISO 281 damage feature + monotone RUL penalty}
+  M: {name: preset_qinglong_wake,  model: qinglong-wind,  note: neighbour attention + wake expert (3 neighbours)}
+  N: {name: preset_aeolus_forecast,model: aeolus-wind,    note: 6-step auxiliary forecast decoder}
+  O: {name: base_aetheris,         model: aetheris-wind,  note: self-check head (verify-first)}
+
+  # ── distillation axis ─────────────────────────────────────────────────────
+  P: {name: student_from_scratch,  model: windfusion-edge, distillation: false}
+  Q: {name: student_response_only, model: windfusion-edge, distillation: true, weights: {prediction: 1.0, uncertainty: 0.0, feature: 0.0, physics: 0.0}, router_agreement: 0.0}
+  R: {name: student_full_kd,       model: windfusion-edge, distillation: true, weights: {prediction: 0.5, uncertainty: 0.2, feature: 0.15, physics: 0.15}, router_agreement: 0.05}
+
+  # ── fleet axis ────────────────────────────────────────────────────────────
+  S: {name: zero_shot_transfer,    protocol: none}
+  T: {name: federated_averaging,   protocol: fedavg, rounds: 3}
+  U: {name: reptile_meta_train,    protocol: reptile, meta_iterations: 25}
+  V: {name: fewshot_8_windows,     protocol: fewshot, windows: 8}
+  W: {name: fewshot_32_windows,    protocol: fewshot, windows: 32}
+  X: {name: fewshot_128_windows,   protocol: fewshot, windows: 128}
+
+results:
+  # Filled by a run: `experiment -> {metric: value}`. Empty means NOT MEASURED.
+  {}
