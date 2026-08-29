@@ -66,3 +66,85 @@ def test_benchmark_family_covers_edge_and_research(tiny_config):
     assert report["results"]["windfusion-edge"]["parameters"] < report["results"]["windfusion-research"]["parameters"]
     assert "energy_per_inference" in report["not_measured"]
     assert report["results"]["windfusion-edge"]["energy_per_inference"] == "NOT MEASURED"
+
+
+def test_verification_does_not_leak_the_label(tiny_config):
+    """Verdicts must be a function of the prediction, never of the target.
+
+    Corrupting the labels can change the *scored* accuracy, but the emitted
+    verdict histogram has to be identical: the verifier is fed the model's own
+    failure probability, twin health and RUL, not the ground truth.
+    """
+    import torch
+
+    bundle = build_dataloaders(tiny_config)
+    model = create_model("windfusion-edge", 12, 3, 5, tiny_config.turbine).eval()
+
+    clean = evaluate_verification(model, bundle.test, tiny_config, mc_samples=2)
+
+    class _Relabelled:
+        """Wraps the loader and replaces every target with a constant."""
+
+        def __init__(self, loader):
+            self._loader = loader
+
+        def __iter__(self):
+            for batch in self._loader:
+                batch = dict(batch)
+                batch["target"] = torch.full_like(batch["target"], 0.42)
+                yield batch
+
+    relabelled = evaluate_verification(
+        model, _Relabelled(bundle.test), tiny_config, mc_samples=2
+    )
+    assert relabelled["verdict_histogram"] == clean["verdict_histogram"]
+    # the scoring does use the labels, so the *truth* distribution must change
+    assert relabelled["truth_histogram"] != clean["truth_histogram"]
+
+
+def test_verification_reports_class_balance(tiny_config):
+    """Accuracy on a 3-class problem is meaningless without the balance."""
+    bundle = build_dataloaders(tiny_config)
+    model = create_model("windfusion-edge", 12, 3, 5, tiny_config.turbine)
+    report = evaluate_verification(model, bundle.test, tiny_config, mc_samples=2)
+    assert sum(report["truth_histogram"].values()) == report["n"]
+    assert set(report["recall_by_class"]) == {"NORMAL", "WARNING", "CRITICAL"}
+    assert 0.0 < report["majority_class_rate"] <= 1.0
+
+
+def test_evaluation_is_reproducible_regardless_of_global_rng(tiny_config):
+    """MC-dropout masks must be seeded: two runs must agree."""
+    import torch
+
+    bundle = build_dataloaders(tiny_config)
+    model = create_model("windfusion-lite", 12, 3, 5, tiny_config.turbine).eval()
+    torch.manual_seed(1)
+    first = evaluate_model(model, bundle.test, tiny_config, mc_samples=4, keep_arrays=False)
+    torch.manual_seed(987654)
+    second = evaluate_model(model, bundle.test, tiny_config, mc_samples=4, keep_arrays=False)
+    assert first.metrics["regression"] == second.metrics["regression"]
+
+
+def test_an_untrained_model_fails_the_deployment_gate(tiny_config):
+    """The verifier alone must not be trusted with an untrained model.
+
+    MC-dropout variance understates epistemic uncertainty before training, so an
+    untrained model can emit confident CRITICAL verdicts. The gate that catches
+    it is the accuracy/calibration check, not the verifier.
+    """
+    from windfusion.evaluation.baselines import build_baselines, dataset_arrays
+
+    bundle = build_dataloaders(tiny_config)
+    model = create_model("windfusion-edge", 12, 3, 5, tiny_config.turbine).eval()
+    result = evaluate_model(model, bundle.test, tiny_config, mc_samples=4, keep_arrays=False)
+    health_mae = result.metrics["regression"]["health_index"]["mae"]
+
+    arrays = dataset_arrays(bundle.test.dataset)
+    baseline = build_baselines(arrays)["mean"].fit(arrays)
+    baseline_mae = float(
+        np.abs(baseline.predict(arrays)[0][:, 1] - arrays.y[:, 1]).mean()
+    )
+    # gate 1: must beat the trivial predictor
+    assert health_mae > baseline_mae
+    # gate 2: 90% intervals must actually cover ~90% of observations
+    assert abs(result.metrics["calibration"]["empirical_coverage"] - 0.9) > 0.05

@@ -369,18 +369,39 @@ def as_markdown(report: dict) -> str:
         "",
         "## 5. Verification behaviour (fail-closed)",
         "",
-        "| Model | abstention rate | coverage | accuracy on decided | false critical | missed critical |",
-        "|---|---:|---:|---:|---:|---:|",
+        "| Model | abstention rate | coverage | accuracy on decided | recall NORMAL / WARNING / CRITICAL |"
+        " false critical | missed critical |",
+        "|---|---:|---:|---:|---:|---:|---:|",
     ]
     for name, entry in report["supervised"].items():
         verdicts = entry.get("verification")
         if not verdicts:
             continue
+        recall = verdicts.get("recall_by_class", {})
         lines.append(
             f"| `{name}` | {verdicts['abstention_rate']:.3f} | {verdicts['coverage']:.3f} | "
-            f"{verdicts['accuracy_on_decided']:.3f} | {verdicts['false_critical_rate']:.3f} | "
+            f"{verdicts['accuracy_on_decided']:.3f} | "
+            f"{recall.get('NORMAL', 0.0):.2f} / {recall.get('WARNING', 0.0):.2f} / "
+            f"{recall.get('CRITICAL', 0.0):.2f} | "
+            f"{verdicts['false_critical_rate']:.3f} | "
             f"{verdicts['missed_critical_rate']:.3f} |"
         )
+    first = next(
+        (e["verification"] for e in report["supervised"].values() if e.get("verification")), None
+    )
+    if first:
+        lines += [
+            "",
+            f"Class balance of the synthetic test split: {first.get('truth_histogram', {})} "
+            f"(majority-class rate {first.get('majority_class_rate', 0.0):.3f} — a trivial "
+            f"always-NORMAL advisor scores this, so compare against it, not against zero).",
+            "",
+            f"Verdicts actually emitted by `windfusion-edge`: "
+            f"{report['supervised']['windfusion-edge']['verification'].get('verdict_histogram', {})}. "
+            f"Abstention is triggered by epistemic uncertainty, physics inconsistency or low data "
+            f"completeness; this split is in-distribution with ~99% complete windows, so the "
+            f"abstention path is exercised by the unit tests rather than by this table.",
+        ]
     lines += [
         "",
         "## 6. Adaptive telemetry",

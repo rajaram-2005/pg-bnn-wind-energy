@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -14,6 +15,20 @@ from ..physics.residuals import compute_residuals
 from ..training.calibration import CalibrationArtifact, apply_calibration
 from ..verification.verifier import PhysicsConfidenceFusion, Verdict
 from .metrics import summarise_all
+
+
+@contextmanager
+def _reproducible(seed: int):
+    """Pin the RNG for the duration of an evaluation run.
+
+    MC-dropout sampling draws dropout masks, so without this two evaluations of
+    the same model on the same data return different numbers. The caller's RNG
+    state is restored on exit.
+    """
+    with torch.random.fork_rng():
+        torch.manual_seed(int(seed))
+        np.random.seed(int(seed) % (2**32 - 1))
+        yield
 
 
 @dataclass
@@ -32,8 +47,33 @@ class EvaluationResult:
         return payload
 
 
-@torch.no_grad()
 def evaluate_model(
+    model,
+    loader,
+    config: WindFusionConfig | None = None,
+    device: str = "cpu",
+    mc_samples: int = 16,
+    calibration: CalibrationArtifact | None = None,
+    keep_arrays: bool = True,
+    max_batches: int | None = None,
+) -> EvaluationResult:
+    """Score a model reproducibly: MC-dropout masks are seeded from the config."""
+    config = config or WindFusionConfig()
+    with _reproducible(config.seed):
+        return _evaluate_model(
+            model,
+            loader,
+            config,
+            device=device,
+            mc_samples=mc_samples,
+            calibration=calibration,
+            keep_arrays=keep_arrays,
+            max_batches=max_batches,
+        )
+
+
+@torch.no_grad()
+def _evaluate_model(
     model,
     loader,
     config: WindFusionConfig | None = None,
@@ -140,7 +180,6 @@ def _true_verdict(rul_days: float, horizon_days: float) -> str:
     return Verdict.NORMAL.value
 
 
-@torch.no_grad()
 def evaluate_verification(
     model,
     loader,
@@ -162,10 +201,19 @@ def evaluate_verification(
 
     config = config or WindFusionConfig()
     model = model.to(device).eval()
+    with _reproducible(config.seed):
+        return _evaluate_verification_inner(model, loader, config, device, mc_samples, use_twin, max_batches)
+
+
+def _evaluate_verification_inner(model, loader, config, device, mc_samples, use_twin, max_batches) -> dict:
+    from ..digital_twin.fusion import TwinCoupledVerifier, twin_from_prediction
+
     verifier = TwinCoupledVerifier(PhysicsConfidenceFusion()) if use_twin else None
     plain = PhysicsConfidenceFusion()
     counts = {"n": 0, "correct": 0, "abstain": 0, "false_critical": 0, "missed_critical": 0}
     verdict_histogram: dict[str, int] = {}
+    truth_histogram: dict[str, int] = {}
+    correct_by_class: dict[str, int] = {}
     for batch_index, batch in enumerate(loader):
         if max_batches is not None and batch_index >= max_batches:
             break
@@ -199,6 +247,7 @@ def evaluate_verification(
                     physics_residual=residual,
                     twin_health=twin.state.health,
                     data_completeness=completeness,
+                    rul_days=float(prediction["mean"][i, 2]) * RUL_SCALE_DAYS,
                 )
             else:
                 result = plain.verify(
@@ -207,11 +256,15 @@ def evaluate_verification(
                     physics_residual=residual,
                     twin_health=1.0,
                     data_completeness=completeness,
+                    rul_days=float(prediction["mean"][i, 2]) * RUL_SCALE_DAYS,
                 )
             verdict = result.verdict.value
             verdict_histogram[verdict] = verdict_histogram.get(verdict, 0) + 1
             counts["n"] += 1
             truth = _true_verdict(rul_days, config.evaluation.warning_horizon_days)
+            truth_histogram[truth] = truth_histogram.get(truth, 0) + 1
+            if verdict == truth:
+                correct_by_class[truth] = correct_by_class.get(truth, 0) + 1
             if verdict in (Verdict.MODEL_UNCERTAIN.value, Verdict.INSUFFICIENT_DATA.value):
                 counts["abstain"] += 1
             elif verdict == truth:
@@ -224,6 +277,15 @@ def evaluate_verification(
     decided = n - counts["abstain"]
     return {
         "n": counts["n"],
+        "verdict_histogram": verdict_histogram,
+        "truth_histogram": truth_histogram,
+        "recall_by_class": {
+            name: round(correct_by_class.get(name, 0) / max(truth_histogram.get(name, 1), 1), 4)
+            for name in ("NORMAL", "WARNING", "CRITICAL")
+        },
+        "majority_class_rate": round(
+            max(truth_histogram.values()) / max(sum(truth_histogram.values()), 1), 4
+        ) if truth_histogram else 0.0,
         "verdict_histogram": verdict_histogram,
         "abstention_rate": round(counts["abstain"] / n, 4),
         "coverage": round(decided / n, 4),

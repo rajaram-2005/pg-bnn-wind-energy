@@ -26,6 +26,22 @@ The verifier abstains when evidence is insufficient:
 Abstention rates are reported in every benchmark table; a model that never abstains is not a
 better model, it is an uncalibrated one.
 
+### Known limitation: abstention is not a substitute for validation
+
+Epistemic uncertainty is estimated with MC-dropout variance, which is a cheap approximation, not
+variational inference. **Before training and calibration it understates uncertainty**: an untrained
+model can therefore emit confident `CRITICAL` verdicts instead of abstaining, and on an
+in-distribution benchmark split the abstention rate can be 0.000 simply because nothing in the split
+trips the thresholds.
+
+The consequence for deployment is explicit: **the verifier is not the gate**. A model is only
+admissible after it has (a) beaten the trivial baselines, (b) met its calibration and coverage
+targets, and (c) passed export parity — all of which are enforced by the onboarding and
+pre-deployment checklists, and all of which an untrained model fails
+(`test_an_untrained_model_fails_the_deployment_gate`). The abstention path itself is exercised by
+the unit tests, which drive the verifier with high epistemic uncertainty, low physics consistency
+and missing sensors directly.
+
 ## Operational rules
 
 1. Outputs are reviewed by a qualified reliability engineer before any maintenance decision.
