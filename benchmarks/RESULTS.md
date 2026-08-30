@@ -18,6 +18,10 @@ Measured 2026-08-29 on the seeded synthetic fleet `bd08a45a71d0ecea` (36 turbine
 6 sites, 15 epochs, ~22 min on 2 cores). Full tables:
 [`results/synthetic-v0.2.0.md`](results/synthetic-v0.2.0.md).
 
+> Scope note: this run predates the removal of the former external base model and the addition of
+> the self-learning `windfusion-auto` model. `windfusion-auto` (and the benchmark's new
+> `self_learning` stage) are therefore `NOT MEASURED` here — re-run the harness to populate them.
+
 **Distillation (teacher 467k -> student 9.7k)**
 
 | Variant | health MAE | RUL MAE (days) |

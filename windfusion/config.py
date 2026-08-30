@@ -1,7 +1,7 @@
 """Versioned, offline-first configuration for WindFusion v0.2.
 
-Provenance: ``offline_first_registry`` (Aetheris ``aetheris/core/config.py``),
-``advisory_only_safety`` (wind-turbine-pg-bnn ``configs/default.yaml::safety``).
+Provenance: ``advisory_only_safety`` (wind-turbine-pg-bnn
+``configs/default.yaml::safety``).
 
 Design rules
 ------------
@@ -221,6 +221,58 @@ class FleetConfig:
 
 
 @dataclass(frozen=True)
+class SelfTrainingConfig:
+    """Hyper-parameters for ``windfusion-auto``, the model that trains on its own.
+
+    The autonomous objective needs no ground-truth labels: masked-channel
+    reconstruction, next-step prediction, physics-consistency self-check and
+    router balance carry the first round. Later rounds may add a gated
+    pseudo-label term bootstrapped from the model's own confident predictions;
+    set ``pseudo_label_weight`` to 0 to keep the fit purely self-supervised.
+    """
+
+    mask_rate: float = 0.15
+    rounds: int = 2
+    epochs: int = 10
+    learning_rate: float = 1.5e-3
+    weight_decay: float = 1e-4
+    grad_clip: float = 5.0
+    patience: int = 4
+    min_delta: float = 1e-4
+    mc_samples: int = 8
+    reconstruction_weight: float = 1.0
+    next_step_weight: float = 1.0
+    physics_weight: float = 0.25
+    consistency_weight: float = 0.10
+    router_balance_weight: float = 0.01
+    pseudo_label_weight: float = 0.50
+    pseudo_label_gate: float = 0.35  # max mean epistemic for a trusted self-label
+
+    def __post_init__(self) -> None:
+        if not 0.0 < self.mask_rate <= 0.5:
+            raise ValueError("mask_rate must be in (0, 0.5] — more masking stops learning")
+        if self.rounds < 1:
+            raise ValueError("rounds must be >= 1")
+        if self.epochs < 1:
+            raise ValueError("epochs must be >= 1")
+        for name in (
+            "reconstruction_weight",
+            "next_step_weight",
+            "physics_weight",
+            "consistency_weight",
+            "router_balance_weight",
+            "pseudo_label_weight",
+        ):
+            if getattr(self, name) < 0.0:
+                raise ValueError(f"{name} must be non-negative")
+        if not 0.0 <= self.pseudo_label_gate <= 2.0:
+            raise ValueError("pseudo_label_gate must be in [0, 2]")
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
 class WindFusionConfig:
     """Top-level configuration object."""
 
@@ -234,6 +286,7 @@ class WindFusionConfig:
     evaluation: EvaluationConfig = field(default_factory=EvaluationConfig)
     distillation: DistillationConfig = field(default_factory=DistillationConfig)
     fleet: FleetConfig = field(default_factory=FleetConfig)
+    self_training: SelfTrainingConfig = field(default_factory=SelfTrainingConfig)
     turbine: TurbineConfig = field(default_factory=TurbineConfig)
     safety: SafetyConfig = field(default_factory=SafetyConfig)
 
@@ -296,6 +349,7 @@ _SECTION_TYPES: dict[str, type] = {
     "evaluation": EvaluationConfig,
     "distillation": DistillationConfig,
     "fleet": FleetConfig,
+    "self_training": SelfTrainingConfig,
     "turbine": TurbineConfig,
     "safety": SafetyConfig,
 }

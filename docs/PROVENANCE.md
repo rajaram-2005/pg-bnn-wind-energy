@@ -7,14 +7,13 @@ No upstream source tree was copied into this repository. `concept` entries were 
 ## Sources
 
 - **AeroZip-Telemetry-Compression** — 2 reused concepts
-- **Aetheris** — 3 reused concepts
 - **TurbineDigitalTwin** — 1 reused concepts
 - **ai-machinery-etl-pipeline** — 1 reused concepts
 - **wind-turbine-pg-bnn** — 15 reused concepts
 
 ## Reuse kinds
 
-- `concept` — 11
+- `concept` — 8
 - `equation` — 4
 - `schema` — 3
 - `protocol` — 4
@@ -37,9 +36,6 @@ No upstream source tree was copied into this repository. `concept` entries were 
 | `anomaly_bypass_telemetry` | AeroZip-Telemetry-Compression | `AeroZipSimulator.java` | MIT | concept | `windfusion/edge/telemetry.py` | tests/test_telemetry.py |
 | `delta_deadband_quant_codec` | AeroZip-Telemetry-Compression | `AeroZipSimulator.java (delta + deadband + quantise)` | MIT | concept | `windfusion/edge/telemetry.py` | tests/test_telemetry.py |
 | `twin_state_vocabulary` | TurbineDigitalTwin | `app.py` | no licence file | schema | `windfusion/digital_twin/state.py` | tests/test_digital_twin.py |
-| `tiered_model_router` | Aetheris | `aetheris/core/model_router.py, aetheris/core/tiers.py` | MIT | concept | `windfusion/models/registry.py` | tests/test_router.py |
-| `verify_first_self_check` | Aetheris | `aetheris/core/proof.py, aetheris/core/constitution.py` | MIT | concept | `windfusion/verification/verifier.py` | tests/test_verification.py |
-| `offline_first_registry` | Aetheris | `aetheris/core/config.py (offline-first configuration)` | MIT | concept | `windfusion/config.py` | tests/test_config.py |
 | `data_zone_layout` | ai-machinery-etl-pipeline | `README.md (n8n/Ollama/Supabase/Langflow orchestration)` | MIT | schema | `data/{raw,processed,features,synthetic,validation,benchmarks}` | tests/test_dataset.py |
 | `federated_physics_weighted_average` | wind-turbine-pg-bnn | `src/federated/fed_client.py, configs/default.yaml::federated.physics_aware_aggregation` | MIT | protocol | `windfusion/training/fleet.py` | tests/test_fleet.py |
 | `reptile_site_adaptation` | wind-turbine-pg-bnn | `src/meta/reptile.py, src/meta/tasks.py` | MIT | protocol | `windfusion/training/fleet.py` | tests/test_fleet.py |

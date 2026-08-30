@@ -78,6 +78,69 @@ def _cmd_train(args) -> int:
     return 0
 
 
+def _cmd_self_train(args) -> int:
+    from .data.loaders import build_dataloaders
+    from .training.loop import save_checkpoint
+
+    config = _load_config(args.config)
+    mode = args.mode or config.model.mode
+    if args.turbines:
+        config = config.with_overrides(**{"data.n_turbines": args.turbines})
+    spec = MODEL_REGISTRY[mode]
+    if not spec.self_supervised:
+        print(
+            f"[windfusion] {mode!r} has no self-supervised objective — run "
+            "`windfusion train` instead, or use the self-learning model (`windfusion-auto`)",
+            file=sys.stderr,
+        )
+        return 2
+    model = create_model(
+        mode,
+        config.model.input_features,
+        config.model.outputs,
+        config.model.physics_features,
+        config.turbine,
+    )
+    bundle = build_dataloaders(
+        config, forecast_horizon=spec.forecast_horizon, neighbors=spec.neighbors
+    )
+    print(
+        f"[windfusion] {mode}: {bundle.summary()} — autonomous fit "
+        "(ground-truth labels are not consumed)",
+        file=sys.stderr,
+    )
+    report = model.autonomous_fit(
+        bundle.train,
+        bundle.val,
+        config=config,
+        rounds=args.rounds,
+        epochs=args.epochs,
+        device=args.device,
+        verbose=not args.quiet,
+    )
+    out_dir = Path(args.out)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    checkpoint = save_checkpoint(
+        model,
+        out_dir / f"{mode}.pt",
+        config,
+        meta={
+            "data": bundle.meta,
+            "autonomous": {
+                k: report[k] for k in ("rounds", "epochs", "pseudo_labels", "best")
+            },
+        },
+    )
+    report.pop("history", None)
+    report["checkpoint"] = str(checkpoint)
+    report["data"] = bundle.meta
+    report["note"] = (
+        "objective terms are self-supervised loss values on simulated data, NOT field accuracy"
+    )
+    _print(report)
+    return 0
+
+
 def _cmd_evaluate(args) -> int:
     from .data.loaders import build_dataloaders
     from .evaluation.evaluate import evaluate_model, evaluate_verification
@@ -374,6 +437,20 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--out", default="artifacts/checkpoints")
     p.add_argument("--quiet", action="store_true")
     p.set_defaults(func=_cmd_train)
+
+    p = add(
+        "self-train",
+        help="autonomously fit the self-learning model (windfusion-auto) on unlabelled windows",
+    )
+    p.add_argument("--mode", choices=sorted(MODEL_REGISTRY), default="windfusion-auto")
+    p.add_argument("--config")
+    p.add_argument("--rounds", type=int, help="self-supervised rounds (+ gated pseudo-label rounds)")
+    p.add_argument("--epochs", type=int, help="epochs per round")
+    p.add_argument("--turbines", type=int)
+    p.add_argument("--device", default="cpu")
+    p.add_argument("--out", default="artifacts/checkpoints")
+    p.add_argument("--quiet", action="store_true")
+    p.set_defaults(func=_cmd_self_train)
 
     p = add("evaluate", help="evaluate a checkpoint or an untrained model")
     p.add_argument("--checkpoint")

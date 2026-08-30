@@ -19,8 +19,10 @@ python benchmarks/synthetic_benchmark.py --quick          # 6 turbines x 400 sam
 ```
 
 Stages: fleet generation (checksummed) → footprint → supervised training of 4 baselines and 9
-models → distillation (teacher, student from scratch, distilled student) → fleet learning
-(zero-shot, federated, few-shot on a held-out site) → telemetry policy → verification behaviour.
+models → self-learning (`windfusion-auto` fitted by its own `autonomous_fit`, no labels consumed,
+then scored with the same metric suite) → distillation (teacher, student from scratch, distilled
+student) → fleet learning (zero-shot, federated, few-shot on a held-out site) → telemetry policy →
+verification behaviour.
 
 Output: `benchmarks/results/synthetic-v0.2.0.{json,md}` with the fleet checksum, seed, environment,
 thread count and total runtime. Regenerating with the same seed on the same machine reproduces the

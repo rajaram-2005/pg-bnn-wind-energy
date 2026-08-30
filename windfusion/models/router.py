@@ -1,8 +1,7 @@
 """Top-k sparse router with load balancing and recorded decisions.
 
-Provenance: ``tiered_model_router`` (Aetheris). Every prediction carries the
-routing weights it used, so the decision is auditable after the fact instead of
-being an opaque inference.
+Every prediction carries the routing weights it used, so the decision is
+auditable after the fact instead of being an opaque inference.
 """
 
 from __future__ import annotations

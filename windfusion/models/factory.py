@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 from ..config import TurbineConfig
-from .aetheris import AetherisWind
+from .auto import AutoWind
 from .mythologies import AeolusWind, OdinWind, QinglongWind, RaWind, VayuWind
 from .registry import MODEL_REGISTRY, ModelSpec, get_spec
 from .tiers import EdgeWind, LiteWind, ResearchWind
 
 CONSTRUCTORS = {
-    "aetheris-wind": AetherisWind,
+    "windfusion-auto": AutoWind,
     "ra-wind": RaWind,
     "qinglong-wind": QinglongWind,
     "vayu-wind": VayuWind,

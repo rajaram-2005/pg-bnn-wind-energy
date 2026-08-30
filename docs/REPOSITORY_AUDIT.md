@@ -13,7 +13,6 @@ copied into WindFusion.** Reused ideas are re-implemented and declared in
 | `wind-turbine-pg-bnn` | Python | ~19k LOC in `src/` | Primary research baseline |
 | `TurbineDigitalTwin` | HTML/Python (Flask) | dashboard + twin logic | State/scenario semantics |
 | `AeroZip-Telemetry-Compression` | Java | single simulator | Telemetry compression policy |
-| `Aetheris` | Python | 194 modules | Routing tiers, verify-first, offline-first |
 | `ai-machinery-etl-pipeline` | docs + ZIP | n8n/Ollama/Supabase/Langflow | Data-zone conventions |
 | `pg-bnn-wind-energy` | Python | this repository | Consolidation target |
 | `Personal-Productive-ai`, `Automated-Component-Management-Tracking-System` | Java | unrelated | Not used |
@@ -35,8 +34,7 @@ copied into WindFusion.** Reused ideas are re-implemented and declared in
 | `TurbineDigitalTwin` | Flask auth/UI, committed `.env` | | | ✓ | Not an architecture; committed secrets are unsafe practice |
 | `AeroZip` | Anomaly bypass, delta/deadband/quantisation | ✓ | ✓ | | Generalised from one fixed threshold to a multi-signal risk policy with hysteresis |
 | `AeroZip` | Java simulator | | | ✓ | Re-implemented in NumPy so ratio and fidelity are measurable here |
-| `Aetheris` | Model router + tiers, verify-first, offline-first config | ✓ | ✓ | | Recast as a sparse expert router, a physics self-check and a versioned YAML config |
-| `Aetheris` | Assistant engine, FastAPI, UI, plugins (194 modules) | | | ✓ | Unrelated general-purpose application |
+| *(removed)* | former external base-model concept | | | ✓ | Fully removed: the referenced lineage, model, registry family and provenance entries were deleted; the role is filled by `windfusion-auto` (AutoWind), a self-learning model developed natively in this repository |
 | `ai-machinery-etl-pipeline` | Data-zone layout, artefact provenance | ✓ | | | Adopted as directory + checksum convention |
 | `ai-machinery-etl-pipeline` | n8n/Ollama/Supabase/Langflow stack, ZIP archive | | | ✓ | Opaque archive is not a maintainable research dependency |
 

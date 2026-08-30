@@ -7,12 +7,14 @@
 - Data: 36 turbines x 1440 samples, 6 sites
 - Seed: 7, epochs: 15
 - Machine: Linux-6.1.158+-x86_64-with-glibc2.36 (torch 2.13.0+cu130, 1 threads)
+- Note: this run predates the removal of the former external base model and the
+  addition of the self-learning `windfusion-auto` model; re-run the benchmark
+  to regenerate every table against the current model family.
 
 ## 1. Model footprint
 
 | Model | Parameters | FP32 MB | INT8 MB | CPU latency ms (median) | windows/s |
 |---|---:|---:|---:|---:|---:|
-| `aetheris-wind` | 87,643 | 0.334 | 0.2867 | 1.510 | 662.3 |
 | `ra-wind` | 53,130 | 0.203 | 0.1624 | 1.431 | 698.9 |
 | `qinglong-wind` | 91,613 | 0.349 | 0.2206 | 1.627 | 614.6 |
 | `vayu-wind` | 56,444 | 0.215 | 0.1817 | 1.531 | 653.2 |
@@ -33,7 +35,6 @@
 | `windfusion-edge` | 9,714 | 0.1033 | 111.92 | 0.418 | 0.956 | 0.0955 | -0.062 | 0.939 | 53.5 |
 | `windfusion-lite` | 50,330 | 0.0988 | 111.37 | 0.450 | 0.972 | 0.0722 | -0.148 | 0.962 | 64.3 |
 | `windfusion-research` | 467,211 | 0.0984 | 99.07 | 0.379 | 0.977 | 0.1217 | -0.197 | 0.967 | 137.1 |
-| `aetheris-wind` | 87,643 | 0.0939 | 110.29 | 0.346 | 0.979 | 0.1420 | -0.092 | 0.974 | 67.0 |
 | `ra-wind` | 53,130 | 0.0878 | 110.19 | 0.435 | 0.978 | 0.1078 | -0.247 | 0.964 | 66.2 |
 | `qinglong-wind` | 91,613 | 0.0747 | 123.28 | 0.337 | 0.980 | 0.1383 | -0.237 | 0.973 | 90.8 |
 | `vayu-wind` | 56,444 | 0.0810 | 98.01 | 0.553 | 0.979 | 0.1509 | -0.313 | 0.973 | 96.0 |
@@ -65,7 +66,6 @@ Knowledge-distillation terms on the final epoch: {'kd_total': 0.335267, 'kd_pred
 | `windfusion-edge` | 0.000 | 1.000 | 0.473 | 0.39 / 0.27 / 0.94 | 0.090 | 0.010 |
 | `windfusion-lite` | 0.000 | 1.000 | 0.487 | 0.40 / 0.41 / 0.93 | 0.087 | 0.011 |
 | `windfusion-research` | 0.000 | 1.000 | 0.364 | 0.25 / 0.11 / 0.99 | 0.109 | 0.001 |
-| `aetheris-wind` | 0.000 | 1.000 | 0.287 | 0.15 / 0.50 / 0.93 | 0.054 | 0.012 |
 | `ra-wind` | 0.000 | 1.000 | 0.479 | 0.42 / 0.84 / 0.71 | 0.022 | 0.046 |
 | `qinglong-wind` | 0.000 | 1.000 | 0.253 | 0.11 / 0.55 / 0.93 | 0.042 | 0.011 |
 | `vayu-wind` | 0.000 | 1.000 | 0.663 | 0.62 / 0.61 / 0.88 | 0.045 | 0.019 |
