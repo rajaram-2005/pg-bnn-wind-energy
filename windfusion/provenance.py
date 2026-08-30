@@ -257,49 +257,6 @@ PROVENANCE: tuple[Concept, ...] = (
         validated_by=("tests/test_digital_twin.py",),
         notes="Upstream ships no licence file and a committed .env; neither is copied.",
     ),
-    # ── Aetheris: routing / verify-first ────────────────────────────────────
-    Concept(
-        concept_id="tiered_model_router",
-        source_repo="Aetheris",
-        upstream_path="aetheris/core/model_router.py, aetheris/core/tiers.py",
-        upstream_license=MIT,
-        reuse="concept",
-        local_path="windfusion/models/registry.py",
-        description=(
-            "A registry of capability tiers selected before inference. Recast "
-            "here as a sparse expert router with explicit capacity/specialisation "
-            "tiers and a recorded decision for every prediction."
-        ),
-        validated_by=("tests/test_router.py",),
-    ),
-    Concept(
-        concept_id="verify_first_self_check",
-        source_repo="Aetheris",
-        upstream_path="aetheris/core/proof.py, aetheris/core/constitution.py",
-        upstream_license=MIT,
-        reuse="concept",
-        local_path="windfusion/verification/verifier.py",
-        description=(
-            "Verify-first behaviour: a prediction is accepted only after an "
-            "independent consistency check. Here the check is physical and "
-            "statistical rather than linguistic, and failure returns "
-            "MODEL_UNCERTAIN instead of a lower-confidence guess."
-        ),
-        validated_by=("tests/test_verification.py",),
-    ),
-    Concept(
-        concept_id="offline_first_registry",
-        source_repo="Aetheris",
-        upstream_path="aetheris/core/config.py (offline-first configuration)",
-        upstream_license=MIT,
-        reuse="concept",
-        local_path="windfusion/config.py",
-        description=(
-            "Everything runs offline from a single versioned YAML config with "
-            "no mandatory network dependency."
-        ),
-        validated_by=("tests/test_config.py",),
-    ),
     # ── ai-machinery-etl-pipeline: data zones ───────────────────────────────
     Concept(
         concept_id="data_zone_layout",

@@ -29,9 +29,20 @@ def test_no_source_tree_was_copied():
     from pathlib import Path
 
     root = Path(__file__).resolve().parents[1]
-    forbidden = ("aerovigil_pg_bnn", "AeroZipSimulator.java", "aetheris/core")
+    forbidden = ("aerovigil_pg_bnn", "AeroZipSimulator.java")
     for name in forbidden:
         assert not (root / name).exists()
+
+
+def test_no_aetheris_lineage_is_declared_anywhere():
+    """The Aetheris concept was removed from this repository, fully."""
+    from pathlib import Path
+
+    assert all(c.source_repo != "Aetheris" for c in provenance.PROVENANCE)
+    assert "Aetheris" not in provenance.provenance_markdown()
+    root = Path(__file__).resolve().parents[1]
+    for path in (root / "windfusion").rglob("*.py"):
+        assert "aetheris" not in path.read_text(encoding="utf-8").lower(), path
 
 
 def test_provenance_table_lists_every_concept():

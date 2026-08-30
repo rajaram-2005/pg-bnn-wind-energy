@@ -169,6 +169,50 @@ def stage_supervised(config: WindFusionConfig, runs, modes: list[str], epochs: i
     return results
 
 
+def stage_self_learning(config: WindFusionConfig, runs, epochs: int | None = None) -> dict:
+    """Fit the self-learning model on its own, then score it like every other model.
+
+    ``autonomous_fit`` consumes no ground-truth labels: round 1 is pure
+    self-supervision, round 2 adds the model's own gated pseudo-labels. The
+    resulting model is then evaluated with the same supervised metric suite,
+    which is exactly the point of the stage: how far does a model get when it
+    trains on its own?
+    """
+    cfg = config.with_overrides(**{"model.mode": "windfusion-auto"})
+    sc = cfg.self_training
+    fit_epochs = max(1, min(sc.epochs, epochs or sc.epochs))
+    set_determinism(cfg.seed)
+    model, bundle = _prepare("windfusion-auto", cfg, runs)
+    started = time.perf_counter()
+    report = model.autonomous_fit(
+        bundle.train, bundle.val, config=cfg, epochs=fit_epochs, verbose=False
+    )
+    seconds = round(time.perf_counter() - started, 2)
+    calibration = calibrate(model, bundle.val, mc_samples=4)
+    result = evaluate_model(
+        model, bundle.test, cfg, mc_samples=cfg.evaluation.mc_samples, calibration=calibration
+    )
+    verdicts = evaluate_verification(model, bundle.test, cfg, mc_samples=4)
+    return {
+        "model": "windfusion-auto",
+        "mode": report["mode"],
+        "parameters": report["parameters"],
+        "train_seconds": seconds,
+        "rounds_run": report["rounds"],
+        "epochs_per_round": fit_epochs,
+        "best_objective": (
+            None if report["best"] is None else round(report["best"]["total"], 6)
+        ),
+        "labels_consumed": False,
+        "pseudo_labels": report["pseudo_labels"],
+        "pseudo_stats": report["pseudo_stats"],
+        "metrics": result.metrics,
+        "timing": result.timing,
+        "calibration": calibration.as_dict(),
+        "verification": verdicts,
+    }
+
+
 def stage_distillation(config: WindFusionConfig, runs, epochs: int) -> dict:
     teacher_id = config.distillation.teacher
     student_id = config.distillation.student
@@ -358,7 +402,21 @@ def as_markdown(report: dict) -> str:
         "",
         f"Knowledge-distillation terms on the final epoch: {report['distillation']['kd_terms']}",
         "",
-        "## 4. Fleet learning (held-out site)",
+        "## 4. Self-learning (`windfusion-auto`, autonomous fit — no labels consumed)",
+        "",
+        "| Model | Parameters | health MAE | RUL MAE (days) | warning F1 | AUROC | ECE | NLL | 90% coverage | train s |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        _regression_row("windfusion-auto", report["self_learning"]),
+        "",
+        f"Rounds: {report['self_learning']['rounds_run']} "
+        f"(self-supervised + gated pseudo-labels), pseudo-labels accepted: "
+        f"{report['self_learning']['pseudo_labels']} of "
+        f"{report['self_learning']['pseudo_stats'].get('observed', 0)} observed, "
+        f"best autonomous objective: {report['self_learning']['best_objective']}. "
+        f"Labels consumed: no — the supervised metric suite is applied *after* training "
+        f"only to score the result.",
+        "",
+        "## 5. Fleet learning (held-out site)",
         "",
         "| Protocol | RUL MAE (days) |",
         "|---|---:|",
@@ -367,7 +425,7 @@ def as_markdown(report: dict) -> str:
         f"| + few-shot ({report['fleet_learning']['fewshot_windows']} windows) | "
         f"{report['fleet_learning']['fewshot_rul_mae_days']:.2f} |",
         "",
-        "## 5. Verification behaviour (fail-closed)",
+        "## 6. Verification behaviour (fail-closed)",
         "",
         "| Model | abstention rate | coverage | accuracy on decided | recall NORMAL / WARNING / CRITICAL |"
         " false critical | missed critical |",
@@ -404,13 +462,13 @@ def as_markdown(report: dict) -> str:
         ]
     lines += [
         "",
-        "## 6. Adaptive telemetry",
+        "## 7. Adaptive telemetry",
         "",
         f"- windows: {report['telemetry']['windows']}, modes: {report['telemetry']['modes']}",
         f"- bandwidth reduction: {report['telemetry']['bandwidth_reduction']:.3f}",
         f"- mean |error| on reconstruction: {report['telemetry']['mean_mae']:.5f}",
         "",
-        "## 7. What is NOT measured here",
+        "## 8. What is NOT measured here",
         "",
         "- Real SCADA/CM data of any kind (no licensed dataset is bundled).",
         "- Energy per inference and on-device RAM: needs platform tooling.",
@@ -418,7 +476,7 @@ def as_markdown(report: dict) -> str:
         "- Any comparison against the upstream repositories' published numbers: "
         "those numbers come from different data and are not comparable.",
         "",
-        "## 8. Fleet composition",
+        "## 9. Fleet composition",
         "",
         f"```json\n{json.dumps(report['fleet']['summary'], indent=2)}\n```",
         "",
@@ -476,7 +534,7 @@ def main(argv=None) -> int:
             "windfusion-edge",
             "windfusion-lite",
             "windfusion-research",
-            "aetheris-wind",
+            "windfusion-auto",
             "ra-wind",
             "qinglong-wind",
             "vayu-wind",
@@ -488,6 +546,7 @@ def main(argv=None) -> int:
         "supervised",
         stage_supervised(config, runs, modes, args.epochs, not args.no_baselines),
     )
+    report.set("self_learning", stage_self_learning(config, runs, args.epochs))
     report.set("distillation", stage_distillation(config, runs, args.epochs))
     report.set("fleet_learning", stage_fleet_learning(config, runs, args.epochs))
     report.set("telemetry", stage_telemetry(config))
@@ -500,6 +559,7 @@ def main(argv=None) -> int:
         "fleet": report.stage["fleet"],
         "footprint": report.stage["footprint"],
         "supervised": report.stage["supervised"],
+        "self_learning": report.stage["self_learning"],
         "distillation": report.stage["distillation"],
         "fleet_learning": report.stage["fleet_learning"],
         "telemetry": report.stage["telemetry"],
@@ -507,6 +567,7 @@ def main(argv=None) -> int:
             "seed": args.seed,
             "epochs": args.epochs,
             "training": config.training.to_dict(),
+            "self_training": config.self_training.to_dict(),
             "data": config.data.to_dict(),
             "evaluation": config.evaluation.to_dict(),
         },

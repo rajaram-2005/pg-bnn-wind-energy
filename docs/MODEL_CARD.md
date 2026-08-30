@@ -13,7 +13,7 @@ safety interlocks, warranty or commercial decisions, and any use without enginee
 
 | Model | Family | Parameters | Role |
 |---|---|---:|---|
-| `aetheris-wind` | base | ~88k | balanced reference architecture with verify-first self-check |
+| `windfusion-auto` | self-learning | ~116k | trains on its own: autonomous fit on unlabelled windows (self-supervision + gated pseudo-labels); supervised path also available |
 | `ra-wind` | Egyptian preset | ~53k | thermal/solar-load specialisation |
 | `qinglong-wind` | Chinese preset | ~92k | wake and fleet coupling (3 neighbours) |
 | `vayu-wind` | Hindu preset | ~56k | gust/rotor aerodynamics, lowest latency (top-1) |
@@ -24,6 +24,9 @@ safety interlocks, warranty or commercial decisions, and any use without enginee
 | `windfusion-research` | tier | ~467k | distillation teacher, ablations |
 
 Names are engineering presets, not pretrained models and not cultural representations.
+`windfusion-auto` replaces the previously referenced external base model; it is native to this
+repository, and its autonomous training loop consumes no ground-truth labels — only the SCADA
+windows themselves plus the lumped-physics residual check.
 
 ## Training and evaluation data
 

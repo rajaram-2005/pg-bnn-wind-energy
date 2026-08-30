@@ -55,7 +55,8 @@ static runtimes cannot trace (see `tests/test_export.py::test_dense_export_path_
 | Vayu | window statistics (std, range) projected into the pooled representation; dilated stack up to 16 | `base.stat_proj`, `registry.VAYU.dilations` |
 | Odin | ISO 281 damage-rate feature + monotone RUL penalty | `base._damage_feature`, `losses.monotone_rul_penalty` |
 | Aeolus | auxiliary 6-step wind/power forecast decoder | `base.forecast_head`, `losses.forecast_loss` |
-| Aetheris | self-check head predicting the expected physics-residual magnitude | `base.self_check`, `losses.self_check_loss` |
+| AutoWind (`windfusion-auto`) | self-supervised objectives and its own fit loop — the model that trains on its own | `models/auto.py`, `AutoWind.autonomous_fit` |
+| Self-check head (research tier + AutoWind) | head predicting the expected physics-residual magnitude, used by the verifier as a consistency signal | `base.self_check`, `losses.self_check_loss` |
 
 ### 5. Uncertainty
 
@@ -98,8 +99,11 @@ L = heteroscedastic NLL
   + w_r · router balance
   + w_m · monotone RUL pairs             (Odin)
   + 0.1 · forecast MSE                   (Aeolus)
-  + 0.1 · self-check MSE                 (Aetheris, research)
+  + 0.1 · self-check MSE                 (research tier, AutoWind)
 ```
+
+`windfusion-auto` additionally optimises the self-supervised objective of § 8, which needs no
+labels at all; the supervised terms above only enter when targets happen to exist.
 
 Residuals are computed on **raw SI-unit** channels, never on normalised features, because the
 physical relations are only valid in physical units.
@@ -113,7 +117,29 @@ each excess by a per-channel scale, so a sensor pinned at its clipping value con
 penalty rather than a 10³ one. Completeness is reported to the verifier separately through
 `data_completeness`.
 
-### 8. Deployment path
+### 8. Self-learning objective (`windfusion-auto`)
+
+The self-learning model replaces the old borrowed base architecture and trains on its own. Its
+objective (implemented in `AutoWind.self_supervised_objective`, driven by `AutoWind.autonomous_fit`)
+consumes unlabelled SCADA windows only:
+
+```
+L_autonomous = w_r · masked-channel reconstruction MSE   (hide whole channels, infer last step)
+             + w_n · next-step prediction MSE            (each position predicts t+1; causal by construction)
+             + w_p · Σᵢ rᵢ²                               (lumped-physics consistency of the snapshot)
+             + w_c · self-check MSE                       (regress own residual magnitude)
+             + w_b · router balance                       (Σ p̄ log p̄, same anti-collapse term)
+```
+
+Rounds after the first add a bootstrapping term: the model scores every training window with MC
+dropout, keeps only windows whose mean epistemic uncertainty is at or below
+`self_training.pseudo_label_gate` (and whose data completeness passes the verifier's floor), and
+trains a heteroscedastic NLL against its own predictions on those. Accept/reject counts are reported
+(`pseudo_stats`) — silent degradation is the failure mode of every self-training scheme, so the gate
+and the numbers are part of the contract. Validation for early stopping uses the same autonomous
+objective; ground-truth labels are never part of the fit.
+
+### 9. Deployment path
 
 `torch → ExportWrapper (dense experts) → ONNX (opset 17) → ONNX Runtime parity check → dynamic INT8`.
 TorchScript remains available as a fallback. `EdgeRuntime` wraps the model with a ring buffer,

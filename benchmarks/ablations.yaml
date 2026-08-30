@@ -28,7 +28,7 @@ experiments:
   L: {name: preset_odin_monotone,  model: odin-wind,      note: ISO 281 damage feature + monotone RUL penalty}
   M: {name: preset_qinglong_wake,  model: qinglong-wind,  note: neighbour attention + wake expert (3 neighbours)}
   N: {name: preset_aeolus_forecast,model: aeolus-wind,    note: 6-step auxiliary forecast decoder}
-  O: {name: base_aetheris,         model: aetheris-wind,  note: self-check head (verify-first)}
+  O: {name: auto_self_learning,    model: windfusion-auto, note: autonomous fit (self-supervised + gated pseudo-labels)}
 
   # ── distillation axis ─────────────────────────────────────────────────────
   P: {name: student_from_scratch,  model: windfusion-edge, distillation: false}

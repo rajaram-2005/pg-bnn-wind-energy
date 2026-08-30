@@ -1,4 +1,4 @@
-"""WindFusion-Lite model and Aetheris-inspired model registry."""
+"""Legacy WindFusion-Lite v0.1 model and model registry (kept for reference)."""
 
 from dataclasses import dataclass
 
@@ -21,7 +21,6 @@ class ModelConfig:
 
 
 MODEL_REGISTRY = {
-    "aetheris-wind": ModelConfig("aetheris-wind", 48, 16, 2, 0.10),
     "ra-wind": ModelConfig(
         "ra-wind", 40, 12, 2, 0.08
     ),  # Egyptian: thermal emphasis via training config

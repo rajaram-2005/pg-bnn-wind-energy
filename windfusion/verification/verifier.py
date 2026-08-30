@@ -1,6 +1,5 @@
 """Physics-Confidence Fusion: fail-closed verdicts for maintenance advice.
 
-Provenance: ``verify_first_self_check`` (Aetheris ``aetheris/core/proof.py``).
 A prediction is never returned as a bare number: it is combined with epistemic
 uncertainty, normalised physics residuals, digital-twin health, temporal
 consistency and data completeness. When the evidence does not support a claim

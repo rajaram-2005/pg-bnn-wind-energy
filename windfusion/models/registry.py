@@ -1,10 +1,9 @@
 """Model registry: one contract, many specialisations.
 
-Provenance: ``tiered_model_router`` (Aetheris ``aetheris/core/model_router.py``
-and ``aetheris/core/tiers.py``) — a registry of capability tiers chosen before
-inference. Here the tiers are *architectural*: each entry changes the inductive
-bias (temporal receptive field, expert specialisation, auxiliary heads), not
-just the layer widths.
+The registry is an explicit list of capability tiers selected before inference.
+The tiers are *architectural*: each entry changes the inductive bias (temporal
+receptive field, expert specialisation, auxiliary heads), not just the layer
+widths.
 
 Naming note: mythology-inspired identifiers (Ra, Qinglong, Vayu, Odin, Aeolus)
 are **engineering presets**. They are not pretrained models, they do not encode
@@ -15,8 +14,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-FAMILY_AETHERIS = "aetheris"
 FAMILY_MYTHOLOGY = "mythology"
+FAMILY_SELF_LEARNING = "self-learning"
 FAMILY_TIER = "tier"
 
 EXPERT_NAMES: tuple[str, ...] = ("aero", "drive", "thermal", "grid")
@@ -59,6 +58,7 @@ class ModelSpec:
     self_check_head: bool = False
     window_stats: bool = False
     damage_feature: bool = False
+    self_supervised: bool = False
     physics_bias: dict[str, float] = field(default_factory=lambda: dict(DEFAULT_PHYSICS_BIAS))
     description: str = ""
     provenance: tuple[str, ...] = ()
@@ -86,30 +86,34 @@ class ModelSpec:
             "self_check_head": self.self_check_head,
             "window_stats": self.window_stats,
             "damage_feature": self.damage_feature,
+            "self_supervised": self.self_supervised,
             "physics_bias": dict(self.physics_bias),
             "description": self.description,
         }
 
 
-# ── Aetheris: the base architecture ────────────────────────────────────────
-AETHERIS = ModelSpec(
-    model_id="aetheris-wind",
-    family=FAMILY_AETHERIS,
-    tradition="Aetheris (verify-first base)",
+# ── Self-learning reference model (trains on its own) ──────────────────────
+AUTOWIND = ModelSpec(
+    model_id="windfusion-auto",
+    family=FAMILY_SELF_LEARNING,
+    tradition="AutoWind (self-learning)",
     hidden=64,
     bottleneck=20,
     top_k=2,
     dropout=0.10,
-    encoder_blocks=3,
-    dilations=(1, 2, 4),
+    encoder_blocks=4,
+    dilations=(1, 2, 4, 8),
+    window_stats=True,
     self_check_head=True,
+    self_supervised=True,
     description=(
-        "Balanced base architecture: multi-scale causal encoder, four domain "
-        "experts with top-2 sparse routing, heteroscedastic head and an "
-        "auxiliary self-check head that predicts the expected physics-residual "
-        "magnitude (verify-first behaviour borrowed from Aetheris)."
+        "Self-learning reference model: it trains on its own. On top of the "
+        "shared trunk it carries masked-channel reconstruction, next-step "
+        "prediction and physics-consistency self-check objectives, plus gated "
+        "pseudo-label rounds, so unlabelled SCADA windows are enough for an "
+        "autonomous fit (supervised targets remain usable when present)."
     ),
-    provenance=("tiered_model_router", "verify_first_self_check"),
+    provenance=(),
 )
 
 # ── Mythology-inspired architecture presets ────────────────────────────────
@@ -175,7 +179,7 @@ VAYU = ModelSpec(
         "(up to 16 steps) with top-1 routing for the lowest latency, an "
         "aerodynamics-specialised expert and explicit gust statistics."
     ),
-    provenance=("heier_cp_betz", "tiered_model_router"),
+    provenance=("heier_cp_betz",),
 )
 
 ODIN = ModelSpec(
@@ -232,7 +236,6 @@ EDGE = ModelSpec(
     encoder_blocks=2,
     dilations=(1, 2),
     description="Smallest tier for constrained CPU/edge hardware.",
-    provenance=("tiered_model_router",),
 )
 
 LITE = ModelSpec(
@@ -246,7 +249,6 @@ LITE = ModelSpec(
     encoder_blocks=3,
     dilations=(1, 2, 4),
     description="Default balanced tier carried over from WindFusion-Lite v0.1.",
-    provenance=("tiered_model_router",),
 )
 
 RESEARCH = ModelSpec(
@@ -262,12 +264,11 @@ RESEARCH = ModelSpec(
     expert_depth={"aero": 2, "drive": 2, "thermal": 2, "grid": 2},
     self_check_head=True,
     description="Large tier used as the distillation teacher and for ablations.",
-    provenance=("tiered_model_router",),
 )
 
 MODEL_REGISTRY: dict[str, ModelSpec] = {
     spec.model_id: spec
-    for spec in (AETHERIS, RA, QINGLONG, VAYU, ODIN, AEOLUS, EDGE, LITE, RESEARCH)
+    for spec in (AUTOWIND, RA, QINGLONG, VAYU, ODIN, AEOLUS, EDGE, LITE, RESEARCH)
 }
 
 MYTHOLOGY_MODELS: tuple[str, ...] = tuple(
@@ -297,6 +298,8 @@ def registry_table() -> str:
             extras.append("monotone RUL")
         if spec.self_check_head:
             extras.append("self-check head")
+        if spec.self_supervised:
+            extras.append("self-learning (autonomous fit)")
         lines.append(
             f"| `{spec.model_id}` | {spec.family} | {spec.tradition} | {spec.hidden} | "
             f"{spec.top_k} | {spec.neighbors} | {', '.join(extras) or '-'} |"

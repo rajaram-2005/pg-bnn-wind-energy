@@ -1,8 +1,7 @@
 """Capacity tiers for deployment (edge / default / research).
 
-Provenance: ``tiered_model_router`` (Aetheris). Tiers share the architecture and
-differ only in capacity and sparsity, so a model can be swapped without
-changing the data contract or the export path.
+Tiers share the architecture and differ only in capacity and sparsity, so a
+model can be swapped without changing the data contract or the export path.
 """
 
 from __future__ import annotations

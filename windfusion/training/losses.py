@@ -102,7 +102,7 @@ def forecast_loss(prediction: torch.Tensor, target: torch.Tensor) -> torch.Tenso
 def self_check_loss(
     predicted: torch.Tensor, residuals: dict[str, torch.Tensor]
 ) -> torch.Tensor:
-    """Train the Aetheris self-check head to predict the residual magnitude."""
+    """Train the physics self-check head to predict the residual magnitude."""
     observed = torch.stack(
         [v.reshape(v.shape[0], -1).abs().mean(-1) for v in residuals.values()], dim=-1
     ).mean(-1, keepdim=True)

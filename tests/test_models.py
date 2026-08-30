@@ -28,7 +28,7 @@ def test_missing_sensors_do_not_propagate_nan():
     x = torch.randn(2, 24, 12)
     x[0, 5, 3] = float("nan")
     x[1, :, 7] = float("nan")
-    out = create_model("aetheris-wind", 12, 3, 5)(x, torch.zeros(2, 5))
+    out = create_model("windfusion-auto", 12, 3, 5)(x, torch.zeros(2, 5))
     assert torch.isfinite(out["mean"]).all()
 
 
@@ -58,21 +58,19 @@ def test_mythology_presets_differ_architecturally():
     assert specs["odin-wind"].damage_feature
     assert specs["vayu-wind"].dilations[-1] > specs["ra-wind"].dilations[-1]
     assert specs["ra-wind"].expert_depth["thermal"] > specs["ra-wind"].expert_depth["aero"]
-    assert specs["aetheris-wind"].self_check_head
+    assert specs["windfusion-research"].self_check_head
 
 
-def test_aetheris_base_exposes_self_check_and_verified_prediction():
-    model = create_model("aetheris-wind", 12, 3, 5)
-    out = model(torch.randn(2, 24, 12), torch.randn(2, 5))
-    assert "consistency" in out and (out["consistency"] > 0).all()
-    result = model.predict_verified(torch.randn(1, 24, 12), torch.randn(1, 5), samples=2)
-    assert result["verdict"] in {
-        "NORMAL",
-        "WARNING",
-        "CRITICAL",
-        "MODEL_UNCERTAIN",
-        "INSUFFICIENT_DATA",
-    }
+def test_aetheris_concept_is_fully_removed():
+    assert "aetheris-wind" not in MODEL_REGISTRY
+    table = registry_table()
+    assert "aetheris" not in table.lower()
+    import windfusion.models as models
+
+    assert not hasattr(models, "AetherisWind")
+    import importlib.util
+
+    assert importlib.util.find_spec("windfusion.models.aetheris") is None
 
 
 def test_forecast_head_shape_for_aeolus():

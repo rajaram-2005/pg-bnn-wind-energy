@@ -73,7 +73,7 @@ def explain(
         "digital_twin_state": twin_state,
         "recommended_action": DISCLAIMER,
         "provenance": {
-            "models": "WindFusion v0.2 (Aetheris base + mythology presets)",
+            "models": "WindFusion v0.2 (self-learning AutoWind + mythology presets + capacity tiers)",
             "physics": "Heier Cp / Betz, ISO 281 L10, lumped RC thermal, Jensen wake",
         },
     }

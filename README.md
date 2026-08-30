@@ -14,8 +14,9 @@ advisory-only research architecture that unifies the wind-energy work spread acr
 
 | Area | v0.1 | v0.2 |
 |---|---|---|
-| Model family | 8 width presets, one architecture | **9 architectures**: Aetheris base, 5 mythology-inspired presets (Ra/Qinglong/Vayu/Odin/Aeolus), 3 capacity tiers |
+| Model family | 8 width presets, one architecture | **9 architectures**: 5 mythology-inspired presets (Ra/Qinglong/Vayu/Odin/Aeolus), 3 capacity tiers and the self-learning `windfusion-auto` model |
 | Training | loss functions only | end-to-end loop: seeding, warmup+cosine schedule, early stopping, checkpoints with data checksums |
+| Self-learning | — | `windfusion-auto` (AutoWind) **trains on its own**: masked-channel reconstruction + next-step prediction + physics-consistency objectives and gated pseudo-label rounds, via its own `autonomous_fit` loop on unlabelled windows |
 | Distillation | loss function | `DistillTrainer`: response + uncertainty + feature + physics + **router-agreement** transfer |
 | Calibration | none | temperature scaling + distribution-free conformal intervals, with before/after ECE |
 | Evaluation | infrastructure only | full metric suite (regression, early warning, ECE/NLL/CRPS, coverage) + 4 non-neural/neural baselines |
@@ -39,7 +40,9 @@ neighbours (B, K, 12) ──►  cross-asset attention (Qinglong)           │
                               └──────────┴─────────┴─────────┴────────────┘
                                                       │
                                        heteroscedastic head (mean + log-var)
-                                       self-check head (Aetheris verify-first)
+                                       self-check head (physics self-verification)
+                                       self-supervised heads on windfusion-auto (masked recon,
+                                                         next-step) — it trains on its own
                                                       │
      digital twin ──► Physics-Confidence Fusion ──► NORMAL | WARNING | CRITICAL
                                                   | MODEL_UNCERTAIN | INSUFFICIENT_DATA
@@ -49,11 +52,15 @@ Only the selected experts execute per sample, and the routing decision is return
 prediction. A verdict is only emitted after uncertainty, physics residuals, twin health, temporal
 consistency and data completeness are checked — otherwise the system abstains.
 
+Every architecture above is otherwise the same trunk: `windfusion-auto` does not fork the contract, it
+adds self-supervised heads and its own fitting loop beside it, so evaluation, verification, distillation
+and ONNX export work for it exactly as for the other models.
+
 ## Model family
 
 | Model | Family | Inductive bias |
 |---|---|---|
-| `aetheris-wind` | base | balanced trunk + **self-check head** (Aetheris verify-first) |
+| `windfusion-auto` | self-learning | **trains on its own**: masked-channel reconstruction, next-step prediction, physics-consistency self-check and gated pseudo-label rounds (`autonomous_fit`); needs no labels |
 | `ra-wind` | Egyptian | deeper thermal expert, ambient/thermal-modulated router bias |
 | `qinglong-wind` | Chinese | cross-asset attention over neighbours + **wake expert** (Jensen deficit) |
 | `vayu-wind` | Hindu | long dilated receptive field (up to 16 steps), top-1 routing, gust statistics |
@@ -70,7 +77,7 @@ pretrained models, not cultural representations, and carry no performance claim.
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -e '.[dev,export,baselines]'
-pytest                       # 132 tests
+pytest                       # 156 tests (4 skip without the export/baselines extras)
 ```
 
 ## Usage
@@ -79,16 +86,20 @@ pytest                       # 132 tests
 import torch
 from windfusion.models import create_model
 
-model = create_model("aetheris-wind", input_features=12, physics_features=5)
+model = create_model("windfusion-auto", input_features=12, physics_features=5)
 out = model(torch.randn(2, 24, 12), torch.randn(2, 5))
 prediction = model.predict(torch.randn(2, 24, 12), torch.randn(2, 5), samples=16)
 print(prediction["mean"], prediction["epistemic"], prediction["routing"])
+
+# the self-learning model also carries its own loop — no labels required:
+# report = model.autonomous_fit(train_loader, val_loader, config=config)
 ```
 
 ```bash
 python -m windfusion models                    # list the family
 python -m windfusion provenance --markdown     # where every reused concept comes from
 python -m windfusion train --mode odin-wind --epochs 25 --out artifacts/checkpoints
+python -m windfusion self-train --mode windfusion-auto --epochs 10   # trains on its own, no labels
 python -m windfusion evaluate --checkpoint artifacts/checkpoints/odin-wind.pt
 python -m windfusion benchmark --modes windfusion-edge,windfusion-research
 python -m windfusion distill --teacher windfusion-research --student windfusion-edge
@@ -141,7 +152,6 @@ declared in `windfusion/provenance.py` with its upstream path, licence and reuse
 | `wind-turbine-pg-bnn` | heteroscedastic NLL, aleatoric/epistemic split, Heier Cp + Betz, ISO 281 L10, lumped RC thermal, soft-hinge limits, ECE/early-warning protocol, fault vocabulary, ONNX contract, FedAvg + Reptile protocols, Hermes onboarding gates, advisory-only safety | PINO/FNO wake operator (too costly for the edge path), Flutter/web/API/notification stack, Java/Streamlit applications |
 | `TurbineDigitalTwin` | typed state vocabulary and what-if semantics | Flask dashboard, bundled Random Forest, committed `.env` |
 | `AeroZip-Telemetry-Compression` | anomaly bypass, delta/deadband/quantisation | the Java simulator and its fixed thresholds |
-| `Aetheris` | tiered routing registry, verify-first self-check, offline-first config | the general assistant engine, FastAPI/UI surface |
 | `ai-machinery-etl-pipeline` | raw/processed/feature/synthetic/validation/benchmark data zones | n8n/Ollama/Supabase/Langflow stack, ZIP-only archive |
 
 Full audit: [`docs/REPOSITORY_AUDIT.md`](docs/REPOSITORY_AUDIT.md).
